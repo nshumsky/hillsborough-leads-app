@@ -6,6 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.db import get_client
+from utils.branding import apply_branding
 
 st.set_page_config(page_title='Import Propstream Results', page_icon='📥', layout='wide')
 apply_branding()
@@ -138,5 +139,4 @@ if st.button('📥 Import Phones & Emails', type='primary'):
 
     # Clear DB cache
     from utils.db import query_leads
-from utils.branding import apply_branding
     query_leads.clear()
