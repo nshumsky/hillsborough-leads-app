@@ -22,11 +22,15 @@ st.logo(LOGO_URL, link="https://www.aplushomebuyer.com")
 # ── Landing page ──────────────────────────────────────────────────────────────
 st.image(LOGO_URL, width=320)
 st.markdown(
-    f"<h2 style='color:{NAVY}; margin-top:0.25rem;'>Hillsborough Distressed Property Leads</h2>",
+    f"<h1 style='color:{NAVY}; margin-top:0.25rem;'>Welcome, Mike! 👋</h1>",
     unsafe_allow_html=True,
 )
 st.markdown(
-    f"<p style='color:{STEEL}; font-size:1.05rem;'>Live data from the Hillsborough Clerk — updated every weekday at 7 AM.</p>",
+    f"<h3 style='color:{STEEL}; margin-top:0;'>Hillsborough Distressed Property Leads</h3>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    f"<p style='color:#555; font-size:1.05rem;'>Live data from the Hillsborough Clerk — updated every weekday at 7 AM ET.</p>",
     unsafe_allow_html=True,
 )
 
