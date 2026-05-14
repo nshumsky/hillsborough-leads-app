@@ -11,8 +11,12 @@ from utils.branding import apply_branding
 
 st.set_page_config(page_title='Dashboard', page_icon='📊', layout='wide')
 apply_branding()
-st.title('📊 Dashboard')
-st.caption(f'Morning snapshot — {date.today().strftime("%A, %B %d %Y")}')
+from utils.branding import NAVY, STEEL
+st.markdown(
+    f"<h2 style='color:{NAVY}; margin-bottom:0;'>Welcome, Mike! 👋</h2>",
+    unsafe_allow_html=True,
+)
+st.caption(f'📊 Dashboard — {date.today().strftime("%A, %B %d %Y")}')
 
 # ── KPI row ───────────────────────────────────────────────────────────────────
 try:
