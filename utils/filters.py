@@ -15,10 +15,16 @@ def date_range_filter(df: pd.DataFrame, col: str = 'filing_date') -> pd.DataFram
     if pd.isna(min_d) or pd.isna(max_d):
         return df
     st.sidebar.subheader('📅 Date Range')
-    start = st.sidebar.date_input('From', value=date.today() - timedelta(days=90),
-                                   min_value=min_d.date(), max_value=max_d.date())
-    end   = st.sidebar.date_input('To', value=date.today(),
-                                   min_value=min_d.date(), max_value=max_d.date())
+    min_date = min_d.date()
+    max_date = max_d.date()
+    # Clamp defaults so they always fall within the actual data range
+    start_default = max(min_date, date.today() - timedelta(days=90))
+    start_default = min(start_default, max_date)
+    end_default   = min(max_date, date.today())
+    start = st.sidebar.date_input('From', value=start_default,
+                                   min_value=min_date, max_value=max_date)
+    end   = st.sidebar.date_input('To', value=end_default,
+                                   min_value=min_date, max_value=max_date)
     return df[(df[col].dt.date >= start) & (df[col].dt.date <= end)]
 
 
