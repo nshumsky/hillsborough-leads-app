@@ -35,7 +35,7 @@ DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
     'landlord_name', 'tenant_name',
     'property_street', 'property_city', 'property_zip',
-    'land_use', 'phone_1',
+    'land_use', 'is_absentee', 'phone_1',
     'called', 'reached', 'outcome', 'notes',
 ] if c in df_f.columns]
 
@@ -43,7 +43,7 @@ RENAME = {
     'bucket': 'Bucket', 'days_since_filing': 'Days', 'filing_date': 'Filed',
     'case_number': 'Case #', 'landlord_name': 'Landlord', 'tenant_name': 'Tenant',
     'property_street': 'Address', 'property_city': 'City', 'property_zip': 'ZIP',
-    'land_use': 'Prop Type', 'phone_1': 'Phone',
+    'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'phone_1': 'Phone',
     'called': 'Called?', 'reached': 'Reached?',
     'outcome': 'Outcome', 'notes': 'Notes',
 }
