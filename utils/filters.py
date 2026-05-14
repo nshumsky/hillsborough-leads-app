@@ -12,11 +12,12 @@ def date_range_filter(df: pd.DataFrame, col: str = 'filing_date') -> pd.DataFram
         return df
     min_d = df[col].min()
     max_d = df[col].max()
-    if pd.isna(min_d) or pd.isna(max_d):
+    if pd.isna(min_d) or max_d is None or min_d is None:
         return df
     st.sidebar.subheader('📅 Date Range')
-    min_date = min_d.date()
-    max_date = max_d.date()
+    # filing_date may already be date objects (not Timestamps)
+    min_date = min_d.date() if hasattr(min_d, 'date') else min_d
+    max_date = max_d.date() if hasattr(max_d, 'date') else max_d
     # Clamp defaults so they always fall within the actual data range
     start_default = max(min_date, date.today() - timedelta(days=90))
     start_default = min(start_default, max_date)
@@ -25,7 +26,9 @@ def date_range_filter(df: pd.DataFrame, col: str = 'filing_date') -> pd.DataFram
                                    min_value=min_date, max_value=max_date)
     end   = st.sidebar.date_input('To', value=end_default,
                                    min_value=min_date, max_value=max_date)
-    return df[(df[col].dt.date >= start) & (df[col].dt.date <= end)]
+    # Handle both date objects and Timestamps
+    col_as_date = df[col].apply(lambda x: x.date() if hasattr(x, 'date') else x)
+    return df[(col_as_date >= start) & (col_as_date <= end)]
 
 
 def city_filter(df: pd.DataFrame, city_col: str) -> pd.DataFrame:

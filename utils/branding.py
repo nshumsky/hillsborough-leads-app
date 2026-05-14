@@ -12,4 +12,4 @@ SITE_URL   = "https://www.aplushomebuyer.com"
 
 def apply_branding():
     """Inject logo into sidebar. Call once per page after set_page_config."""
-    st.logo(LOGO_URL, link=SITE_URL)
+    st.logo(LOGO_URL, link=SITE_URL, size="large")

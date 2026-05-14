@@ -39,7 +39,7 @@ def query_leads(lead_type: str, days_back: int = 365) -> pd.DataFrame:
         return pd.DataFrame()
     df = pd.DataFrame(res.data)
     if 'filing_date' in df.columns:
-        df['filing_date'] = pd.to_datetime(df['filing_date'], errors='coerce')
+        df['filing_date'] = pd.to_datetime(df['filing_date'], errors='coerce').dt.date
     if 'days_since_filing' in df.columns:
         df['days_since_filing'] = pd.to_numeric(df['days_since_filing'], errors='coerce')
     return df
