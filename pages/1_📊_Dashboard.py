@@ -96,13 +96,41 @@ with cols[1]:
 # ── Cross-type matches ────────────────────────────────────────────────────────
 st.divider()
 st.subheader('🔁 Cross-Type Matches (same address in multiple lead types)')
+st.caption('Properties appearing on 2+ lead lists simultaneously — highest priority targets. See 👥 Multi-List for full details.')
 try:
-    from utils.db import query_cross_matches
-    matches = query_cross_matches()
+    from utils.db import query_multi_list_properties
+    matches = query_multi_list_properties()
     if not matches.empty:
-        st.dataframe(matches[['norm_street', 'city', 'zip', 'lead_types', 'case_numbers']],
-                     use_container_width=True, hide_index=True)
+        # Build a readable "Lists" column
+        def _lists(row):
+            return ' + '.join([
+                lt.title() for lt in ['foreclosure', 'probate', 'divorce', 'eviction']
+                if row.get(f'in_{lt}')
+            ])
+        matches = matches.copy()
+        matches['Lists'] = matches.apply(_lists, axis=1)
+
+        show_cols = [c for c in [
+            'list_count', 'Lists', 'street', 'city', 'zip',
+            'land_use', 'assessed_value', 'lien_summary',
+        ] if c in matches.columns]
+
+        col_cfg = {}
+        if 'assessed_value' in matches.columns:
+            col_cfg['assessed_value'] = st.column_config.NumberColumn('Assessed $', format='$%,.0f')
+
+        st.dataframe(
+            matches[show_cols].rename(columns={
+                'list_count': '# Lists', 'street': 'Address',
+                'city': 'City', 'zip': 'ZIP',
+                'land_use': 'Prop Type', 'lien_summary': 'Liens',
+            }).sort_values('# Lists', ascending=False),
+            column_config=col_cfg,
+            use_container_width=True,
+            hide_index=True,
+        )
+        st.caption(f'{len(matches)} properties — click 👥 Multi-List in the sidebar for phone numbers and case drilldown.')
     else:
-        st.info('No cross-type matches found.')
+        st.info('No cross-type matches found yet. These appear when the same address shows up in 2+ lead types.')
 except Exception as e:
     st.warning(f'Could not load cross-type matches: {e}')
