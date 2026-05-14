@@ -113,6 +113,109 @@ def query_lien_detail(address: str) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=300)
+def query_liens_by_address() -> dict:
+    """
+    Load all actionable liens from silver.fact_liens and return a dict:
+        address (normalized) → {
+            'detail':        "1st Mtg ($216k foreclosing), HOA ($2,500 survives)",
+            'survive_total': 218602.0,
+            'wiped_total':   0.0,
+            'survive_count': 2,
+            'wiped_count':   0,
+        }
+    Excludes RELEASED, INFO, REVIEW statuses.
+    """
+    sb = get_client()
+    PAGE = 1000
+    offset = 0
+    rows = []
+    while True:
+        res = sb.schema('silver').table('fact_liens') \
+                .select('address,label,amount,status,doc_type') \
+                .not_.in_('status', ['RELEASED', 'INFO', 'REVIEW']) \
+                .range(offset, offset + PAGE - 1).execute()
+        batch = res.data or []
+        rows.extend(batch)
+        if len(batch) < PAGE:
+            break
+        offset += PAGE
+
+    if not rows:
+        return {}
+
+    # Group by address
+    from collections import defaultdict
+    grouped = defaultdict(list)
+    for r in rows:
+        addr = (r.get('address') or '').lower().strip()
+        if addr:
+            grouped[addr].append(r)
+
+    def _short_label(row):
+        label = str(row.get('label') or row.get('doc_type') or 'Lien').strip()
+        # Shorten common labels
+        replacements = [
+            ('1st Mortgage (foreclosing lien)', '1st Mtg'),
+            ('Junior Mortgage', 'Jr Mtg'),
+            ('Mortgage — Satisfied', 'Mtg (sat)'),
+            ('Release / Satisfaction', 'Release'),
+            ('DOMESTIC RELATIONS JUDGMENT', 'Dom. Rel. Judgment'),
+            ('JUDGMENT', 'Judgment'),
+        ]
+        for full, short in replacements:
+            if full.lower() in label.lower():
+                label = short
+                break
+        return label
+
+    def _status_tag(status):
+        return {'FORECLOSING LIEN': 'foreclosing', 'SURVIVES': 'survives', 'WIPED': 'wiped'}.get(status, status.lower())
+
+    result = {}
+    for addr, liens in grouped.items():
+        # Sort: foreclosing first, survives next, wiped last
+        order = {'FORECLOSING LIEN': 0, 'SURVIVES': 1, 'WIPED': 2}
+        liens_sorted = sorted(liens, key=lambda x: order.get(x.get('status', ''), 3))
+
+        parts = []
+        survive_total = 0.0
+        wiped_total = 0.0
+        survive_count = 0
+        wiped_count = 0
+
+        for lien in liens_sorted:
+            status = lien.get('status', '')
+            amt = lien.get('amount')
+            label = _short_label(lien)
+            tag = _status_tag(status)
+
+            if status in ('FORECLOSING LIEN', 'SURVIVES'):
+                survive_count += 1
+                if amt:
+                    survive_total += float(amt)
+                    parts.append(f"{label} (${amt:,.0f} {tag})")
+                else:
+                    parts.append(f"{label} ({tag})")
+            elif status == 'WIPED':
+                wiped_count += 1
+                if amt:
+                    wiped_total += float(amt)
+                    parts.append(f"{label} (${amt:,.0f} wiped)")
+                else:
+                    parts.append(f"{label} (wiped)")
+
+        result[addr] = {
+            'detail':        ', '.join(parts) if parts else '',
+            'survive_total': survive_total,
+            'wiped_total':   wiped_total,
+            'survive_count': survive_count,
+            'wiped_count':   wiped_count,
+        }
+
+    return result
+
+
+@st.cache_data(ttl=300)
 def query_map_data() -> pd.DataFrame:
     """Fetch properties that have lat/lon for the map view."""
     sb = get_client()

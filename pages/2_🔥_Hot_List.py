@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from utils.db import query_leads
+from utils.db import query_leads, query_liens_by_address
 from utils.scoring import (
     add_fc_bucket, add_pb_bucket, bucket_sort_key,
     land_use_label, BUCKET_COLORS,
@@ -66,10 +66,23 @@ def load_all_leads():
 
 with st.spinner('Loading leads…'):
     all_leads = load_all_leads()
+    lien_map = query_liens_by_address()   # address → lien detail dict
 
 if all_leads.empty:
     st.info('No leads found.')
     st.stop()
+
+# ── Join lien data by address ─────────────────────────────────────────────────
+if lien_map and 'street' in all_leads.columns:
+    addr_key = all_leads['street'].str.lower().str.strip()
+    all_leads['lien_detail']     = addr_key.map(lambda a: lien_map.get(a, {}).get('detail', ''))
+    all_leads['survive_total']   = addr_key.map(lambda a: lien_map.get(a, {}).get('survive_total', 0))
+    all_leads['wiped_total']     = addr_key.map(lambda a: lien_map.get(a, {}).get('wiped_total', 0))
+    all_leads['survive_count']   = addr_key.map(lambda a: lien_map.get(a, {}).get('survive_count', 0))
+    all_leads['wiped_count']     = addr_key.map(lambda a: lien_map.get(a, {}).get('wiped_count', 0))
+else:
+    for col in ['lien_detail', 'survive_total', 'wiped_total', 'survive_count', 'wiped_count']:
+        all_leads[col] = None
 
 # ── Sidebar filters ───────────────────────────────────────────────────────────
 st.sidebar.header('🔥 Hot List Filters')
@@ -179,7 +192,9 @@ st.divider()
 show_cols = [c for c in [
     'bucket', 'lead_type', 'days_since_filing', 'case_number',
     'owner_name', 'phone_1', 'street', 'city', 'zip',
-    'prop_type', 'is_absentee', 'lien_summary',
+    'prop_type', 'is_absentee',
+    'survive_count', 'survive_total', 'wiped_count', 'wiped_total',
+    'lien_detail',
     'called', 'reached', 'outcome',
 ] if c in df.columns]
 
@@ -195,7 +210,11 @@ col_cfg = {
     'zip':              st.column_config.TextColumn('ZIP'),
     'prop_type':        st.column_config.TextColumn('Prop Type'),
     'is_absentee':      st.column_config.CheckboxColumn('Absentee?'),
-    'lien_summary':     st.column_config.TextColumn('Liens'),
+    'survive_count':    st.column_config.NumberColumn('# Survive', format='%d'),
+    'survive_total':    st.column_config.NumberColumn('Survive $', format='$%,.0f'),
+    'wiped_count':      st.column_config.NumberColumn('# Wiped',   format='%d'),
+    'wiped_total':      st.column_config.NumberColumn('Wiped $',   format='$%,.0f'),
+    'lien_detail':      st.column_config.TextColumn('Lien Detail', width='large'),
     'called':           st.column_config.CheckboxColumn('Called?'),
     'reached':          st.column_config.CheckboxColumn('Reached?'),
     'outcome':          st.column_config.TextColumn('Outcome'),
