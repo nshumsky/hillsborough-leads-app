@@ -112,6 +112,102 @@ def query_lien_detail(address: str) -> pd.DataFrame:
     return df
 
 
+@st.cache_data(ttl=300)
+def query_map_data() -> pd.DataFrame:
+    """Fetch properties that have lat/lon for the map view."""
+    sb = get_client()
+    # Only properties that have been geocoded
+    res = sb.schema('silver').table('dim_property') \
+            .select('address,folio,owner_raw,land_use,is_absentee,homestead,sale_price,lat,lon') \
+            .not_.is_('lat', 'null') \
+            .not_.is_('lon', 'null') \
+            .execute()
+    if not res.data:
+        return pd.DataFrame()
+    df = pd.DataFrame(res.data)
+    df['lat'] = pd.to_numeric(df['lat'], errors='coerce')
+    df['lon'] = pd.to_numeric(df['lon'], errors='coerce')
+    return df.dropna(subset=['lat', 'lon'])
+
+
+@st.cache_data(ttl=300)
+def query_annotations(case_number: str | None = None, address: str | None = None) -> pd.DataFrame:
+    """Fetch annotations for a case or address."""
+    sb = get_client()
+    q = sb.schema('silver').table('dim_annotations').select('*')
+    if case_number:
+        q = q.eq('case_number', case_number)
+    if address:
+        q = q.eq('address', address.lower().strip())
+    res = q.order('created_at', desc=True).execute()
+    if not res.data:
+        return pd.DataFrame()
+    df = pd.DataFrame(res.data)
+    if 'created_at' in df.columns:
+        df['created_at'] = pd.to_datetime(df['created_at'], errors='coerce')
+    return df
+
+
+def upsert_annotation(case_number: str | None, address: str | None,
+                      tag: str | None, note: str | None,
+                      created_by: str = 'mike') -> dict:
+    """Insert or update an annotation. Returns the upserted row."""
+    sb = get_client()
+    record = {
+        'case_number': case_number or None,
+        'address':     address.lower().strip() if address else None,
+        'tag':         tag or None,
+        'note':        note or None,
+        'created_by':  created_by,
+        'updated_at':  'now()',
+    }
+    res = sb.schema('silver').table('dim_annotations').insert(record).execute()
+    query_annotations.clear()
+    return res.data[0] if res.data else {}
+
+
+def delete_annotation(annotation_id: int):
+    """Delete an annotation by ID."""
+    sb = get_client()
+    sb.schema('silver').table('dim_annotations').delete().eq('id', annotation_id).execute()
+    query_annotations.clear()
+
+
+@st.cache_data(ttl=600)
+def query_tax_delinquent() -> pd.DataFrame:
+    """Fetch tax delinquent certificate records."""
+    sb = get_client()
+    res = sb.schema('silver').table('dim_tax_delinquent').select('*').execute()
+    if not res.data:
+        return pd.DataFrame()
+    df = pd.DataFrame(res.data)
+    if 'amount_due' in df.columns:
+        df['amount_due'] = pd.to_numeric(df['amount_due'], errors='coerce')
+    if 'file_date' in df.columns:
+        df['file_date'] = pd.to_datetime(df['file_date'], errors='coerce').dt.date
+    return df
+
+
+@st.cache_data(ttl=600)
+def query_code_violations(status: str | None = None) -> pd.DataFrame:
+    """Fetch code enforcement violations."""
+    sb = get_client()
+    q = sb.schema('silver').table('dim_code_violations').select('*')
+    if status:
+        q = q.eq('status', status)
+    res = q.order('opened_date', desc=True).execute()
+    if not res.data:
+        return pd.DataFrame()
+    df = pd.DataFrame(res.data)
+    for col in ['opened_date', 'closed_date']:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors='coerce').dt.date
+    for col in ['lat', 'lon']:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+    return df
+
+
 def upsert_outcome(case_number: str, field: str, value):
     """Update a single outcome field for a case."""
     sb = get_client()
