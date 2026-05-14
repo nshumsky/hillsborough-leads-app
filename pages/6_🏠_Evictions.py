@@ -8,8 +8,10 @@ from utils.db import query_leads, upsert_outcomes_bulk
 from utils.scoring import add_pb_bucket
 from utils.filters import apply_all_filters
 from utils.export import download_button
+from utils.branding import apply_branding
 
 st.set_page_config(page_title='Evictions', page_icon='🏠', layout='wide')
+apply_branding()
 st.title('🏠 Evictions')
 st.caption('Landlords filing evictions — potential motivated sellers if the property is problematic.')
 

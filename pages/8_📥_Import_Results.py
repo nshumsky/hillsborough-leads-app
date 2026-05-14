@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.db import get_client
 
 st.set_page_config(page_title='Import Propstream Results', page_icon='📥', layout='wide')
+apply_branding()
 st.title('📥 Import Propstream Results')
 st.caption('Upload the results CSV from Propstream to save phone numbers into the database.')
 
@@ -137,4 +138,5 @@ if st.button('📥 Import Phones & Emails', type='primary'):
 
     # Clear DB cache
     from utils.db import query_leads
+from utils.branding import apply_branding
     query_leads.clear()

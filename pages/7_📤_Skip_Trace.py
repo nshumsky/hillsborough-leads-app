@@ -8,8 +8,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.db import query_leads
 from utils.scoring import add_fc_bucket, add_pb_bucket
 from utils.export import to_propstream_csv
+from utils.branding import apply_branding
 
 st.set_page_config(page_title='Skip Trace Export', page_icon='📤', layout='wide')
+apply_branding()
 st.title('📤 Skip Trace Export')
 st.caption('Leads without phone numbers — upload to Propstream Bulk Skip Trace.')
 

@@ -8,8 +8,10 @@ from utils.db import query_leads, upsert_outcomes_bulk
 from utils.scoring import add_pb_bucket
 from utils.filters import apply_all_filters
 from utils.export import download_button, to_propstream_csv
+from utils.branding import apply_branding
 
 st.set_page_config(page_title='Probate', page_icon='📋', layout='wide')
+apply_branding()
 st.title('📋 Probate Cases')
 
 try:

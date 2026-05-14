@@ -13,8 +13,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.db import query_multi_list_persons, query_multi_list_properties
 from utils.export import download_button
+from utils.branding import apply_branding
 
 st.set_page_config(page_title='Multi-List Leads', page_icon='👥', layout='wide')
+apply_branding()
 st.title('👥 Multi-List Leads')
 st.caption(
     'People and properties appearing on **2 or more** lead type lists simultaneously. '

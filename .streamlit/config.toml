@@ -1,0 +1,7 @@
+[theme]
+# A+ Home Buyers brand colors
+primaryColor        = "#002868"   # navy — buttons, sliders, links, active states
+backgroundColor     = "#ffffff"   # white main canvas
+secondaryBackgroundColor = "#eef3f8"   # light steel-blue tint — sidebar + widgets
+textColor           = "#0d0d0d"   # near-black text
+font                = "sans serif"

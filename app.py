@@ -1,32 +1,49 @@
 """
-Hillsborough Distressed Property Lead System
-=============================================
+A+ Home Buyers — Hillsborough Distressed Property Lead System
+=============================================================
 Streamlit multi-page app. Start here — navigate via the sidebar.
 """
 import streamlit as st
 
+LOGO_URL = "https://image-cdn.carrot.com/uploads/sites/78630/2024/04/A_Plus_Logo.png"
+NAVY     = "#002868"
+STEEL    = "#7098b8"
+
 st.set_page_config(
-    page_title='Hillsborough Leads',
-    page_icon='🏚',
+    page_title='A+ Home Buyers — Leads',
+    page_icon=LOGO_URL,
     layout='wide',
     initial_sidebar_state='expanded',
 )
 
-st.title('🏚 Hillsborough Distressed Property Leads')
-st.markdown("""
-Welcome! Use the sidebar to navigate between lead types.
+# Sidebar logo (appears above page navigation)
+st.logo(LOGO_URL, link="https://www.aplushomebuyer.com")
 
-| Tab | What's in it |
-|-----|-------------|
-| 📊 Dashboard | KPIs, daily new filings, pipeline snapshot |
-| 🔥 Hot List | Highest priority leads across all types |
-| 🏚 Foreclosures | Mortgage foreclosure filings |
-| 📋 Probate | Estate / probate cases |
-| 💔 Divorce | Dissolution of marriage filings |
-| 🏠 Evictions | Residential eviction filings |
-| 📤 Skip Trace | Export queue → Propstream upload CSV |
-| 📥 Import Results | Upload Propstream results → save phone numbers |
-| 👥 Multi-List | People & properties on 2+ lead lists (highest priority) |
+# ── Landing page ──────────────────────────────────────────────────────────────
+st.image(LOGO_URL, width=320)
+st.markdown(
+    f"<h2 style='color:{NAVY}; margin-top:0.25rem;'>Hillsborough Distressed Property Leads</h2>",
+    unsafe_allow_html=True,
+)
+st.markdown(
+    f"<p style='color:{STEEL}; font-size:1.05rem;'>Live data from the Hillsborough Clerk — updated every weekday at 7 AM.</p>",
+    unsafe_allow_html=True,
+)
+
+st.divider()
+
+st.markdown("""
+| Page | What's in it |
+|------|-------------|
+| 📊 **Dashboard** | KPIs, daily new filings, pipeline snapshot |
+| 🔥 **Hot List** | Highest priority leads across all types |
+| 🏚 **Foreclosures** | Mortgage foreclosure filings |
+| 📋 **Probate** | Estate / probate cases |
+| 💔 **Divorce** | Dissolution of marriage filings |
+| 🏠 **Evictions** | Residential eviction filings |
+| 📤 **Skip Trace** | Export queue → Propstream upload CSV |
+| 📥 **Import Results** | Upload Propstream results → save phone numbers |
+| 👥 **Multi-List** | People & properties on 2+ lead lists — highest priority |
 """)
 
 st.info('👈 Select a page from the sidebar to get started.')

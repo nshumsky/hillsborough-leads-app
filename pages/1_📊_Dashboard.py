@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.db import get_client, query_daily_new, query_leads, get_kpis
 
 st.set_page_config(page_title='Dashboard', page_icon='📊', layout='wide')
+apply_branding()
 st.title('📊 Dashboard')
 st.caption(f'Morning snapshot — {date.today().strftime("%A, %B %d %Y")}')
 
@@ -99,6 +100,7 @@ st.subheader('🔁 Cross-Type Matches (same address in multiple lead types)')
 st.caption('Properties appearing on 2+ lead lists simultaneously — highest priority targets. See 👥 Multi-List for full details.')
 try:
     from utils.db import query_multi_list_properties
+from utils.branding import apply_branding
     matches = query_multi_list_properties()
     if not matches.empty:
         # Build a readable "Lists" column

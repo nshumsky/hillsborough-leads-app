@@ -7,8 +7,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.db import query_leads
 from utils.scoring import add_fc_bucket, add_pb_bucket, BUCKET_COLORS
 from utils.export import download_button
+from utils.branding import apply_branding
 
 st.set_page_config(page_title='Hot List', page_icon='🔥', layout='wide')
+apply_branding()
 st.title('🔥 Hot List — Priority Leads')
 st.caption('Foreclosures ≤ 60 days + Probate 0–90 days filed. Call these first.')
 
