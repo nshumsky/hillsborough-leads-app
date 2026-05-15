@@ -47,7 +47,7 @@ DISPLAY = [c for c in [
     'land_use', 'is_absentee',
     'beds', 'baths', 'heated_sqft', 'acreage',
     'just_value', 'assessed_value', 'subdivision', 'site_city', 'site_zip',
-    'phone_1', 'lien_detail', 'survive_amount',
+    'phone_1',
     'called', 'reached', 'offer_amount', 'outcome', 'notes',
 ] if c in df_f.columns]
 
@@ -63,7 +63,6 @@ RENAME = {
     'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
     'subdivision': 'Subdivision', 'site_city': 'HCPA City', 'site_zip': 'HCPA ZIP',
     'phone_1': 'Phone',
-    'lien_detail': 'Liens', 'survive_amount': 'Survive $',
     'called': 'Called?', 'reached': 'Reached?',
     'offer_amount': 'Offer $', 'outcome': 'Outcome', 'notes': 'Notes',
 }

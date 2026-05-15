@@ -46,6 +46,24 @@ def query_leads(lead_type: str, days_back: int = 365) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=300)
+def query_auctions() -> pd.DataFrame:
+    """Fetch auctions from gold.fact_auctions."""
+    sb = get_client()
+    res = sb.schema('gold').table('fact_auctions').select('*').execute()
+    if not res.data:
+        return pd.DataFrame()
+    df = pd.DataFrame(res.data)
+    for col in ['sale_date', 'hcpa_sale_date']:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors='coerce').dt.date
+    for col in ['days_to_sale', 'judgment', 'assessed', 'just_value',
+                'assessed_value', 'beds', 'baths', 'heated_sqft']:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+    return df
+
+
+@st.cache_data(ttl=300)
 def query_daily_new(days: int = 7) -> pd.DataFrame:
     sb = get_client()
     res = sb.schema('gold').table('fact_daily_new').select('*').execute()

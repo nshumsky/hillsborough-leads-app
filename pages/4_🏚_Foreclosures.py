@@ -42,7 +42,6 @@ DISPLAY = [c for c in [
     'land_use', 'is_absentee',
     'beds', 'baths', 'heated_sqft', 'acreage',
     'just_value', 'assessed_value', 'subdivision', 'site_city', 'site_zip',
-    'lien_detail', 'survive_amount',
     'called', 'reached', 'offer_amount', 'outcome', 'notes',
 ] if c in df_f.columns]
 
@@ -55,7 +54,6 @@ RENAME = {
     'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
     'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
     'subdivision': 'Subdivision', 'site_city': 'HCPA City', 'site_zip': 'HCPA ZIP',
-    'lien_detail': 'Liens', 'survive_amount': 'Survive $',
     'called': 'Called?', 'reached': 'Reached?', 'offer_amount': 'Offer $',
     'outcome': 'Outcome', 'notes': 'Notes',
 }
@@ -76,8 +74,6 @@ if 'Outcome' in display_df.columns:
     col_config['Outcome']  = st.column_config.SelectboxColumn(options=OUTCOME_OPTS, width='medium')
 if 'Offer $' in display_df.columns:
     col_config['Offer $']  = st.column_config.NumberColumn(format='$%d', width='small')
-if 'Survive $' in display_df.columns:
-    col_config['Survive $'] = st.column_config.NumberColumn(format='$%d', width='small')
 if 'Absentee?' in display_df.columns:
     col_config['Absentee?'] = st.column_config.CheckboxColumn(disabled=True)
 for col in ['Mkt Value', 'Assessed']:
