@@ -80,10 +80,16 @@ LAND_USE_LABELS = {
 
 KEEP_LAND_USE = {'01', '03', '08'}   # SFR, multi-family 10+, multi-family <10
 
-def land_use_label(code: str) -> str:
-    if not code:
+def land_use_label(code) -> str:
+    try:
+        if pd.isna(code):
+            return ''
+    except (TypeError, ValueError):
+        pass
+    s = str(code).strip()
+    if s in ('', 'nan', 'None', 'NA', '<NA>'):
         return ''
-    return LAND_USE_LABELS.get(str(code), f'Code {code}')
+    return LAND_USE_LABELS.get(s, '')
 
 def is_residential(land_use: str) -> bool:
     if not land_use:

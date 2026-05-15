@@ -26,7 +26,7 @@ if df.empty:
 
 df = add_pb_bucket(df, 'days_since_filing')
 if 'land_use' in df.columns:
-    df['land_use'] = df['land_use'].apply(land_use_label)
+    df['land_use'] = df['land_use'].fillna('').apply(land_use_label)
 
 st.sidebar.header('Filters')
 # OOS filter

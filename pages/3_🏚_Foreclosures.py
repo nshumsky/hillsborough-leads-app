@@ -27,7 +27,7 @@ if df.empty:
 
 df = add_fc_bucket(df, 'days_since_filing')
 if 'land_use' in df.columns:
-    df['land_use'] = df['land_use'].apply(land_use_label)
+    df['land_use'] = df['land_use'].fillna('').apply(land_use_label)
 
 # ── Sidebar filters ───────────────────────────────────────────────────────────
 st.sidebar.header('Filters')

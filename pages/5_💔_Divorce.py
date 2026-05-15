@@ -27,7 +27,7 @@ if df.empty:
 
 df = add_pb_bucket(df, 'days_since_filing')
 if 'land_use' in df.columns:
-    df['land_use'] = df['land_use'].apply(land_use_label)
+    df['land_use'] = df['land_use'].fillna('').apply(land_use_label)
 
 st.sidebar.header('Filters')
 df_f = apply_all_filters(df, date_col='filing_date', city_col='address_city')
