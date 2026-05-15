@@ -38,7 +38,7 @@ st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 # ── Display columns ────────────────────────────────────────────────────────────
 DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
-    'defendant_name', 'phone_1', 'property_street', 'property_city', 'property_zip',
+    'defendant_name', 'phone_1', 'property_street', 'property_city', 'property_state', 'property_zip',
     'land_use', 'is_absentee',
     'beds', 'baths', 'heated_sqft', 'acreage',
     'just_value', 'assessed_value', 'subdivision', 'site_city', 'site_zip',
@@ -50,7 +50,7 @@ RENAME = {
     'bucket': 'Bucket', 'days_since_filing': 'Days', 'filing_date': 'Filed',
     'case_number': 'Case #', 'defendant_name': 'Defendant',
     'phone_1': 'Phone', 'property_street': 'Address',
-    'property_city': 'City', 'property_zip': 'ZIP',
+    'property_city': 'City', 'property_state': 'State', 'property_zip': 'ZIP',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?',
     'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
     'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
