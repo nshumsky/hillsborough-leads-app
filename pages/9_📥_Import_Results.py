@@ -17,8 +17,7 @@ st.info("""
 **How to use:**
 1. Run your batch skip trace in Propstream
 2. Download the results CSV from Propstream
-3. Upload it here — phones will be saved to all matching cases
-4. Missing cases (not returned by Propstream) are flagged as **Low Equity**
+3. Upload it here — phone numbers and emails will be saved for all matched cases
 """)
 
 uploaded = st.file_uploader('Upload Propstream results CSV', type=['csv'])
@@ -58,22 +57,6 @@ if missing_cols:
 if st.button('📥 Import Phones & Emails', type='primary'):
     sb = get_client()
     matched = updated = skipped = 0
-    low_equity_cases = []
-
-    # Load session map to find Low Equity (cases uploaded but not returned)
-    # Try to find the most recent session file
-    try:
-        import json
-        from pathlib import Path as P
-        sessions_dir = P('/Users/jennifer/Documents/Claude/foreclosure/propstream_sessions')
-        session_files = sorted(sessions_dir.glob('session_*.json'))
-        session_map = {}
-        if session_files:
-            session_map = json.loads(session_files[-1].read_text())
-    except Exception:
-        session_map = {}
-
-    returned_cases = set()
 
     contact_records = []
     for _, row in df.iterrows():
@@ -82,14 +65,13 @@ if st.button('📥 Import Phones & Emails', type='primary'):
             skipped += 1
             continue
 
-        returned_cases.add(case_number)
         matched += 1
 
         phones = {}
         for i, (p_col, t_col, d_col) in enumerate(PHONE_COLS, 1):
             phone = str(row.get(p_col, '') or '').strip()
             if phone and phone.lower() not in ('', 'none', 'nan'):
-                phones[f'phone_{i}']     = phone
+                phones[f'phone_{i}']      = phone
                 phones[f'phone_{i}_type'] = str(row.get(t_col, '') or '').strip()
                 phones[f'phone_{i}_dnc']  = str(row.get(d_col, '') or '').strip()
 
@@ -117,25 +99,7 @@ if st.button('📥 Import Phones & Emails', type='primary'):
             contact_records[i:i+BATCH], on_conflict='case_number'
         ).execute()
 
-    # Mark Low Equity: cases in session but NOT in Propstream results
-    low_equity_count = 0
-    if session_map:
-        for addr_norm, case_number in session_map.items():
-            if case_number in returned_cases:
-                continue
-            # Only mark if no meaningful existing outcome
-            res = sb.schema('silver').table('dim_outcomes').select('outcome') \
-                    .eq('case_number', case_number).limit(1).execute()
-            existing = (res.data or [{}])[0].get('outcome', '')
-            if not existing or existing == 'Low Equity':
-                sb.schema('silver').table('dim_outcomes').upsert(
-                    {'case_number': case_number, 'outcome': 'Low Equity'},
-                    on_conflict='case_number'
-                ).execute()
-                low_equity_count += 1
-
-    st.success(f'✅ Done! {matched} matched, {updated} contacts saved, '
-               f'{skipped} skipped, {low_equity_count} marked Low Equity')
+    st.success(f'✅ Done! {matched} matched, {updated} contacts saved, {skipped} skipped')
 
     # Clear DB cache
     from utils.db import query_leads

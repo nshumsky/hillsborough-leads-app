@@ -39,9 +39,9 @@ st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
     'defendant_name', 'phone_1', 'property_street', 'property_city', 'property_state', 'property_zip',
-    'land_use', 'is_absentee',
+    'land_use', 'is_absentee', 'homestead',
     'beds', 'baths', 'heated_sqft', 'acreage',
-    'just_value', 'assessed_value', 'subdivision', 'site_city', 'site_zip',
+    'just_value', 'assessed_value', 'subdivision',
     'called', 'reached', 'offer_amount', 'outcome', 'notes',
 ] if c in df_f.columns]
 
@@ -50,10 +50,10 @@ RENAME = {
     'case_number': 'Case #', 'defendant_name': 'Defendant',
     'phone_1': 'Phone', 'property_street': 'Address',
     'property_city': 'City', 'property_state': 'State', 'property_zip': 'ZIP',
-    'land_use': 'Prop Type', 'is_absentee': 'Absentee?',
+    'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'homestead': 'Homestead?',
     'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
     'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
-    'subdivision': 'Subdivision', 'site_city': 'HCPA City', 'site_zip': 'HCPA ZIP',
+    'subdivision': 'Subdivision',
     'called': 'Called?', 'reached': 'Reached?', 'offer_amount': 'Offer $',
     'outcome': 'Outcome', 'notes': 'Notes',
 }
@@ -76,6 +76,8 @@ if 'Offer $' in display_df.columns:
     col_config['Offer $']  = st.column_config.NumberColumn(format='$%d', width='small')
 if 'Absentee?' in display_df.columns:
     col_config['Absentee?'] = st.column_config.CheckboxColumn(disabled=True)
+if 'Homestead?' in display_df.columns:
+    col_config['Homestead?'] = st.column_config.TextColumn('Homestead', width='small')
 for col in ['Mkt Value', 'Assessed']:
     if col in display_df.columns:
         col_config[col] = st.column_config.NumberColumn(format='$%,.0f', width='small')

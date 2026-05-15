@@ -42,9 +42,13 @@ def load_all_leads():
                 df['street']  = df['decedent_street']
                 df['city']    = df.get('decedent_city',  df.get('city', ''))
                 df['zip']     = df.get('decedent_zip',   df.get('zip', ''))
+            elif 'address_street' in df.columns:
+                df['street']  = df['address_street']
+                df['city']    = df.get('address_city',   df.get('city', ''))
+                df['zip']     = df.get('address_zip',    df.get('zip', ''))
             # Normalise owner name
             for col in ['defendant_name', 'petitioner_name', 'party_1_name',
-                        'tenant_name', 'primary_name']:
+                        'landlord_name', 'tenant_name', 'primary_name']:
                 if col in df.columns:
                     df['owner_name'] = df[col]
                     break

@@ -75,6 +75,13 @@ def _filter_df(df: pd.DataFrame, city_col: str) -> pd.DataFrame:
 persons_f    = _filter_df(persons_df,    city_col='city')
 properties_f = _filter_df(properties_df, city_col='city')
 
+# Drop junk rows where street/city is "Unknown" — these are cases with no
+# usable address that got grouped together in the view
+if not properties_f.empty and 'street' in properties_f.columns:
+    properties_f = properties_f[
+        ~properties_f['street'].fillna('').str.lower().isin(['unknown', '', 'nan'])
+    ]
+
 
 # ── Persons tab ───────────────────────────────────────────────────────────────
 tab1, tab2 = st.tabs([

@@ -135,16 +135,19 @@ with tab3:
         'AND have a code violation or tax delinquent certificate — the highest-distress targets.'
     )
 
-    # Build a set of lead addresses
+    # Build a set of lead addresses — each lead type uses a different address column
     lead_addresses: set[str] = set()
-    _view_map = {'foreclosure': 'fact_foreclosures', 'probate': 'fact_probate',
-                 'divorce': 'fact_divorces', 'eviction': 'fact_evictions'}
-    for lt in ['foreclosure', 'probate', 'divorce', 'eviction']:
+    _addr_col_map = {
+        'foreclosure': ('fact_foreclosures', 'property_street'),
+        'probate':     ('fact_probate',      'decedent_street'),
+        'divorce':     ('fact_divorces',     'address_street'),
+        'eviction':    ('fact_evictions',    'property_street'),
+    }
+    for lt, (view, addr_col) in _addr_col_map.items():
         try:
-            view = _view_map[lt]
-            res = get_client().schema('gold').table(view).select('street,lead_type').execute()
+            res = get_client().schema('gold').table(view).select(addr_col).execute()
             for row in (res.data or []):
-                s = str(row.get('street') or '').lower().strip()
+                s = str(row.get(addr_col) or '').lower().strip()
                 if s:
                     lead_addresses.add(s)
         except Exception:
