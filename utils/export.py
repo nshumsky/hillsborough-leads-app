@@ -6,45 +6,28 @@ import pandas as pd
 import streamlit as st
 
 
-# Exact PropStream bulk skip-trace upload column order
 PROPSTREAM_COLS = [
-    'First Name', 'Last Name', 'Email', 'Phone', 'Mobile Phone', 'Landline',
-    'Street Address', 'City', 'State', 'Zip',
-    'Mail Street Address', 'Mail City', 'Mail State', 'Mail Zip',
-    'Mail Address Same', 'Type', 'Status',
+    'First Name', 'Last Name', 'Street Address', 'City', 'State', 'Zip',
+    'Source', 'Case #',
 ]
 
 
 def to_propstream_csv(df: pd.DataFrame, lead_type: str) -> bytes:
-    """
-    Convert a leads DataFrame into the exact PropStream bulk skip-trace
-    upload format (matches the Excel export template).
-    Returns CSV bytes.
-    """
+    """Convert a leads DataFrame into the PropStream skip-trace upload format."""
     name_parts = _split_name_col(df)
-
     street = _coalesce(df, ['property_street', 'decedent_street', 'address_street', 'street'])
     city   = _coalesce(df, ['property_city',   'decedent_city',   'address_city',   'city'])
     zip_   = _coalesce(df, ['property_zip',    'decedent_zip',    'address_zip',    'zip'])
 
     out = pd.DataFrame({
-        'First Name':        name_parts['first'],
-        'Last Name':         name_parts['last'],
-        'Email':             '',
-        'Phone':             df.get('phone_1', pd.Series([''] * len(df), index=df.index)),
-        'Mobile Phone':      '',
-        'Landline':          '',
-        'Street Address':    street,
-        'City':              city,
-        'State':             'FL',
-        'Zip':               zip_,
-        'Mail Street Address': '',
-        'Mail City':         '',
-        'Mail State':        '',
-        'Mail Zip':          '',
-        'Mail Address Same': 'Yes',
-        'Type':              'Owner',
-        'Status':            'New',
+        'First Name':     name_parts['first'],
+        'Last Name':      name_parts['last'],
+        'Street Address': street,
+        'City':           city,
+        'State':          'FL',
+        'Zip':            zip_,
+        'Source':         lead_type.upper(),
+        'Case #':         df.get('case_number', pd.Series([''] * len(df), index=df.index)),
     })
 
     buf = io.StringIO()
