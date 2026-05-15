@@ -40,18 +40,21 @@ st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 
 DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
-    'petitioner_name', 'petitioner_state', 'oos',
-    'decedent_name', 'decedent_street', 'decedent_city', 'decedent_zip',
+    'petitioner_first_name', 'petitioner_last_name',
+    'petitioner_city', 'petitioner_state', 'oos',
+    'decedent_first_name', 'decedent_last_name',
+    'decedent_street', 'decedent_city', 'decedent_zip',
     'land_use', 'is_absentee', 'phone_1', 'lien_detail', 'survive_amount',
     'called', 'reached', 'offer_amount', 'outcome', 'notes',
 ] if c in df_f.columns]
 
 RENAME = {
     'bucket': 'Bucket', 'days_since_filing': 'Days', 'filing_date': 'Filed',
-    'case_number': 'Case #', 'petitioner_name': 'Petitioner',
-    'petitioner_state': 'St', 'oos': 'OOS?',
-    'decedent_name': 'Decedent', 'decedent_street': 'Prop. Address',
-    'decedent_city': 'City', 'decedent_zip': 'ZIP',
+    'case_number': 'Case #',
+    'petitioner_first_name': 'Pet. First', 'petitioner_last_name': 'Pet. Last',
+    'petitioner_city': 'Pet. City', 'petitioner_state': 'Pet. State', 'oos': 'OOS?',
+    'decedent_first_name': 'Dec. First', 'decedent_last_name': 'Dec. Last',
+    'decedent_street': 'Prop. Address', 'decedent_city': 'City', 'decedent_zip': 'ZIP',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'phone_1': 'Phone',
     'lien_detail': 'Liens', 'survive_amount': 'Survive $',
     'called': 'Called?', 'reached': 'Reached?',

@@ -35,16 +35,19 @@ st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 
 DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
-    'landlord_name', 'tenant_name',
-    'property_street', 'property_city', 'property_zip',
+    'landlord_name',
+    'tenant_first_name', 'tenant_last_name',
+    'property_street', 'property_city', 'property_state', 'property_zip',
     'land_use', 'is_absentee', 'phone_1',
     'called', 'reached', 'outcome', 'notes',
 ] if c in df_f.columns]
 
 RENAME = {
     'bucket': 'Bucket', 'days_since_filing': 'Days', 'filing_date': 'Filed',
-    'case_number': 'Case #', 'landlord_name': 'Landlord', 'tenant_name': 'Tenant',
-    'property_street': 'Address', 'property_city': 'City', 'property_zip': 'ZIP',
+    'case_number': 'Case #', 'landlord_name': 'Landlord',
+    'tenant_first_name': 'Tenant First', 'tenant_last_name': 'Tenant Last',
+    'property_street': 'Address', 'property_city': 'City',
+    'property_state': 'State', 'property_zip': 'ZIP',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'phone_1': 'Phone',
     'called': 'Called?', 'reached': 'Reached?',
     'outcome': 'Outcome', 'notes': 'Notes',
