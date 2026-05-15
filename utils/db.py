@@ -234,24 +234,6 @@ def query_liens_by_address() -> dict:
 
 
 @st.cache_data(ttl=300)
-def query_map_data() -> pd.DataFrame:
-    """Fetch properties that have lat/lon for the map view."""
-    sb = get_client()
-    # Only properties that have been geocoded
-    res = sb.schema('silver').table('dim_property') \
-            .select('address,folio,owner_raw,land_use,is_absentee,homestead,sale_price,lat,lon') \
-            .not_.is_('lat', 'null') \
-            .not_.is_('lon', 'null') \
-            .execute()
-    if not res.data:
-        return pd.DataFrame()
-    df = pd.DataFrame(res.data)
-    df['lat'] = pd.to_numeric(df['lat'], errors='coerce')
-    df['lon'] = pd.to_numeric(df['lon'], errors='coerce')
-    return df.dropna(subset=['lat', 'lon'])
-
-
-@st.cache_data(ttl=300)
 def query_annotations(case_number: str | None = None, address: str | None = None) -> pd.DataFrame:
     """Fetch annotations for a case or address."""
     sb = get_client()
@@ -323,9 +305,6 @@ def query_code_violations(status: str | None = None) -> pd.DataFrame:
     for col in ['opened_date', 'closed_date']:
         if col in df.columns:
             df[col] = pd.to_datetime(df[col], errors='coerce').dt.date
-    for col in ['lat', 'lon']:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
     return df
 
 
