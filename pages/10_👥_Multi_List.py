@@ -141,7 +141,8 @@ with tab1:
                 for lt in ['foreclosure', 'probate', 'divorce', 'eviction']:
                     cases = row.get(f'{lt}_cases')
                     if cases:
-                        st.write(f"**{lt.title()}:** {', '.join(cases)}")
+                        case_list = cases if isinstance(cases, list) else str(cases).strip('{}').split(',')
+                        st.write(f"**{lt.title()}:** {', '.join(case_list)}")
 
 
 # ── Properties tab ────────────────────────────────────────────────────────────
@@ -215,4 +216,5 @@ with tab2:
                 for lt in ['foreclosure', 'probate', 'divorce', 'eviction']:
                     cases = row.get(f'{lt}_cases')
                     if cases:
-                        st.write(f"**{lt.title()}:** {', '.join(cases)}")
+                        case_list = cases if isinstance(cases, list) else str(cases).strip('{}').split(',')
+                        st.write(f"**{lt.title()}:** {', '.join(case_list)}")

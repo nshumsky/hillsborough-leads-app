@@ -12,7 +12,7 @@ def date_range_filter(df: pd.DataFrame, col: str = 'filing_date') -> pd.DataFram
         return df
     min_d = df[col].min()
     max_d = df[col].max()
-    if pd.isna(min_d) or max_d is None or min_d is None:
+    if pd.isna(min_d) or pd.isna(max_d):
         return df
     st.sidebar.subheader('📅 Date Range')
     # filing_date may already be date objects (not Timestamps)

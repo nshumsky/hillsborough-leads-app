@@ -85,7 +85,7 @@ if st.button('💾 Save Changes', type='primary'):
                     'Offer $': 'offer_amount', 'Outcome': 'outcome', 'Notes': 'notes'}
     records = []
     for i, row in edited.iterrows():
-        rec = {'case_number': df_f.iloc[list(df_f.index).index(i)]['case_number']}
+        rec = {'case_number': df_f.loc[i, 'case_number']}
         for dc, db in outcome_cols.items():
             if dc in edited.columns:
                 rec[db] = row.get(dc) or None

@@ -78,7 +78,7 @@ LAND_USE_LABELS = {
     '1000': 'Commercial',
 }
 
-KEEP_LAND_USE = {'01', '03', '08'}   # SFR, multi-family 10+, multi-family <10
+KEEP_LAND_USE = {'01', '08'}   # SFR / townhouse (01xx), multi-family (08xx)
 
 def land_use_label(code) -> str:
     try:

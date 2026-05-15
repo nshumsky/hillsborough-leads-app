@@ -69,7 +69,7 @@ def query_daily_new(days: int = 7) -> pd.DataFrame:
     res = sb.schema('gold').table('fact_daily_new').select('*').execute()
     df = pd.DataFrame(res.data or [])
     if 'filing_date' in df.columns:
-        df['filing_date'] = pd.to_datetime(df['filing_date'], errors='coerce')
+        df['filing_date'] = pd.to_datetime(df['filing_date'], errors='coerce').dt.date
     return df
 
 
@@ -111,6 +111,8 @@ def query_multi_list_properties() -> pd.DataFrame:
         df['assessed_value'] = pd.to_numeric(df['assessed_value'], errors='coerce')
     if 'survive_amount' in df.columns:
         df['survive_amount'] = pd.to_numeric(df['survive_amount'], errors='coerce')
+    if 'wiped_amount' in df.columns:
+        df['wiped_amount'] = pd.to_numeric(df['wiped_amount'], errors='coerce')
     return df
 
 

@@ -7,11 +7,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.db import get_client, query_daily_new, query_leads, get_kpis
-from utils.branding import apply_branding
+from utils.branding import apply_branding, NAVY, STEEL
 
 st.set_page_config(page_title='Dashboard', page_icon='📊', layout='wide')
 apply_branding()
-from utils.branding import NAVY, STEEL
 st.markdown(
     f"<h2 style='color:{NAVY}; margin-bottom:0;'>Welcome, Mike! 👋</h2>",
     unsafe_allow_html=True,

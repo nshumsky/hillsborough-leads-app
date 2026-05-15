@@ -103,8 +103,7 @@ if st.button('💾 Save Changes', type='primary'):
     inv_rename = {v: k for k, v in RENAME.items()}
     records = []
     for i, row in edited.iterrows():
-        orig = display_df.iloc[list(display_df.index).index(i)] if i in display_df.index else None
-        rec = {'case_number': df_f.iloc[list(df_f.index).index(i)]['case_number']}
+        rec = {'case_number': df_f.loc[i, 'case_number']}
         for display_col, db_col in outcome_cols.items():
             if display_col in edited.columns:
                 rec[db_col] = row.get(display_col) or None

@@ -35,17 +35,17 @@ def load_all_leads():
             df['lead_type'] = lt
             # Normalise address columns to common names
             if 'property_street' in df.columns:
-                df['street']  = df['property_street']
-                df['city']    = df.get('property_city',  df.get('city', ''))
-                df['zip']     = df.get('property_zip',   df.get('zip', ''))
+                df['street'] = df['property_street']
+                df['city']   = df['property_city'] if 'property_city' in df.columns else pd.NA
+                df['zip']    = df['property_zip']  if 'property_zip'  in df.columns else pd.NA
             elif 'decedent_street' in df.columns:
-                df['street']  = df['decedent_street']
-                df['city']    = df.get('decedent_city',  df.get('city', ''))
-                df['zip']     = df.get('decedent_zip',   df.get('zip', ''))
+                df['street'] = df['decedent_street']
+                df['city']   = df['decedent_city'] if 'decedent_city' in df.columns else pd.NA
+                df['zip']    = df['decedent_zip']  if 'decedent_zip'  in df.columns else pd.NA
             elif 'address_street' in df.columns:
-                df['street']  = df['address_street']
-                df['city']    = df.get('address_city',   df.get('city', ''))
-                df['zip']     = df.get('address_zip',    df.get('zip', ''))
+                df['street'] = df['address_street']
+                df['city']   = df['address_city']  if 'address_city'  in df.columns else pd.NA
+                df['zip']    = df['address_zip']   if 'address_zip'   in df.columns else pd.NA
             # Normalise owner name
             for col in ['defendant_name', 'petitioner_name', 'party_1_name',
                         'landlord_name', 'tenant_name', 'primary_name']:

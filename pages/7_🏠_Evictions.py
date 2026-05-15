@@ -43,6 +43,7 @@ DISPLAY = [c for c in [
     'just_value', 'assessed_value', 'subdivision',
     'phone_1',
     'called', 'reached', 'outcome', 'notes',
+    # note: no offer_amount — fact_evictions does not track offers
 ] if c in df_f.columns]
 
 RENAME = {
@@ -86,7 +87,7 @@ edited = st.data_editor(display_df, column_config=col_config,
 if st.button('💾 Save Changes', type='primary'):
     records = []
     for i, row in edited.iterrows():
-        rec = {'case_number': df_f.iloc[list(df_f.index).index(i)]['case_number']}
+        rec = {'case_number': df_f.loc[i, 'case_number']}
         for dc, db in [('Called?', 'called'), ('Reached?', 'reached'),
                        ('Outcome', 'outcome'), ('Notes', 'notes')]:
             if dc in edited.columns:
