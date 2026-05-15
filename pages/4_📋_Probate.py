@@ -40,7 +40,7 @@ DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
     'petitioner_name', 'petitioner_state', 'oos',
     'decedent_name', 'decedent_street', 'decedent_city', 'decedent_zip',
-    'land_use', 'is_absentee', 'phone_1', 'lien_summary', 'survive_amount',
+    'land_use', 'is_absentee', 'phone_1', 'lien_detail', 'survive_amount',
     'called', 'reached', 'offer_amount', 'outcome', 'notes',
 ] if c in df_f.columns]
 
@@ -51,7 +51,7 @@ RENAME = {
     'decedent_name': 'Decedent', 'decedent_street': 'Prop. Address',
     'decedent_city': 'City', 'decedent_zip': 'ZIP',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'phone_1': 'Phone',
-    'lien_summary': 'Liens', 'survive_amount': 'Survive $',
+    'lien_detail': 'Liens', 'survive_amount': 'Survive $',
     'called': 'Called?', 'reached': 'Reached?',
     'offer_amount': 'Offer $', 'outcome': 'Outcome', 'notes': 'Notes',
 }

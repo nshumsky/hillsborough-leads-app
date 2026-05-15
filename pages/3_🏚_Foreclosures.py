@@ -37,7 +37,7 @@ st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
     'defendant_name', 'phone_1', 'property_street', 'property_city', 'property_zip',
-    'land_use', 'is_absentee', 'lien_summary', 'survive_amount',
+    'land_use', 'is_absentee', 'lien_detail', 'survive_amount',
     'called', 'reached', 'offer_amount', 'outcome', 'notes',
 ] if c in df_f.columns]
 
@@ -47,7 +47,7 @@ RENAME = {
     'phone_1': 'Phone', 'property_street': 'Address',
     'property_city': 'City', 'property_zip': 'ZIP',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?',
-    'lien_summary': 'Liens', 'survive_amount': 'Survive $',
+    'lien_detail': 'Liens', 'survive_amount': 'Survive $',
     'called': 'Called?', 'reached': 'Reached?', 'offer_amount': 'Offer $',
     'outcome': 'Outcome', 'notes': 'Notes',
 }
