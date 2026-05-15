@@ -26,7 +26,9 @@ except Exception as e:
     st.stop()
 
 col1, col2, col3, col4, col5, col6 = st.columns(6)
-col1.metric('🔴 New Today',       kpis.get('new_today', 0))
+latest_date = kpis.get('latest_filing_date', '')
+col1.metric('🔴 New Today',       kpis.get('new_today', 0),
+            help=f'Filed {latest_date}' if latest_date else None)
 col2.metric('📅 New This Week',   kpis.get('new_this_week', 0))
 col3.metric('🏚 Foreclosures',    kpis.get('total_foreclosure', 0))
 col4.metric('📋 Probate',         kpis.get('total_probate', 0))

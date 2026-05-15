@@ -338,13 +338,26 @@ def get_kpis() -> dict:
         kpis[f'total_{lead_type}'] = res.count or 0
 
     # New today / this week
-    from datetime import date, timedelta
-    today_str = date.today().isoformat()
-    week_str  = (date.today() - timedelta(days=7)).isoformat()
+    # The Clerk posts filings dated the previous business day, so "today" is the
+    # most recent filing_date in the DB — not CURRENT_DATE.
+    from datetime import timedelta
+    latest_res = sb.schema('silver').table('fact_cases') \
+                   .select('filing_date').order('filing_date', desc=True).limit(1).execute()
+    if latest_res.data:
+        import datetime
+        latest_date = datetime.date.fromisoformat(latest_res.data[0]['filing_date'])
+    else:
+        import datetime
+        latest_date = datetime.date.today()
+
+    latest_str = latest_date.isoformat()
+    week_str   = (latest_date - timedelta(days=7)).isoformat()
+
     res = sb.schema('silver').table('fact_cases').select('case_number', count='exact') \
-            .gte('filing_date', today_str).execute()
+            .eq('filing_date', latest_str).execute()
     kpis['new_today'] = res.count or 0
     res = sb.schema('silver').table('fact_cases').select('case_number', count='exact') \
             .gte('filing_date', week_str).execute()
     kpis['new_this_week'] = res.count or 0
+    kpis['latest_filing_date'] = latest_str
     return kpis
