@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.db import query_leads, upsert_outcomes_bulk
-from utils.scoring import add_pb_bucket
+from utils.scoring import add_pb_bucket, land_use_label
 from utils.filters import apply_all_filters
 from utils.export import download_button
 from utils.branding import apply_branding
@@ -26,6 +26,8 @@ if df.empty:
     st.stop()
 
 df = add_pb_bucket(df, 'days_since_filing')
+if 'land_use' in df.columns:
+    df['land_use'] = df['land_use'].apply(land_use_label)
 
 st.sidebar.header('Filters')
 df_f = apply_all_filters(df, date_col='filing_date', city_col='address_city')

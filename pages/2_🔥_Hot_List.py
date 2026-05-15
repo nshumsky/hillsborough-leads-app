@@ -13,7 +13,7 @@ from utils.scoring import (
     add_fc_bucket, add_pb_bucket, bucket_sort_key,
     land_use_label, BUCKET_COLORS,
 )
-from utils.export import to_propstream_csv
+from utils.export import to_propstream_csv, download_button
 from utils.branding import apply_branding, NAVY
 
 st.set_page_config(page_title='Hot List', page_icon='🔥', layout='wide')
@@ -240,29 +240,9 @@ col_a, col_b = st.columns(2)
 with col_a:
     st.markdown(f"**No phone yet** — {len(no_phone)} leads  \n_Send these to PropStream for skip tracing_")
     if not no_phone.empty:
-        # Build PropStream CSV for no-phone leads
-        ps_rows = []
-        for _, row in no_phone.iterrows():
-            name = str(row.get('owner_name') or '').strip()
-            parts = name.split(' ', 1)
-            first = parts[0] if parts else ''
-            last  = parts[1] if len(parts) > 1 else ''
-            ps_rows.append({
-                'First Name':     first,
-                'Last Name':      last,
-                'Street Address': row.get('street', ''),
-                'City':           row.get('city', ''),
-                'State':          'FL',
-                'Zip':            row.get('zip', ''),
-                'Source':         str(row.get('lead_type', '')).upper(),
-                'Case #':         row.get('case_number', ''),
-            })
-        ps_df = pd.DataFrame(ps_rows)
-        buf = io.StringIO()
-        ps_df.to_csv(buf, index=False)
         st.download_button(
             f'⬇️ PropStream Upload ({len(no_phone)} rows)',
-            buf.getvalue().encode(),
+            to_propstream_csv(no_phone, 'HOTLIST'),
             'propstream_upload_hotlist.csv',
             'text/csv',
             type='primary',
