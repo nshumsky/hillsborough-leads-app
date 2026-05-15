@@ -39,7 +39,10 @@ st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
     'defendant_name', 'phone_1', 'property_street', 'property_city', 'property_zip',
-    'land_use', 'is_absentee', 'lien_detail', 'survive_amount',
+    'land_use', 'is_absentee',
+    'beds', 'baths', 'heated_sqft', 'acreage',
+    'just_value', 'assessed_value', 'subdivision', 'site_city', 'site_zip',
+    'lien_detail', 'survive_amount',
     'called', 'reached', 'offer_amount', 'outcome', 'notes',
 ] if c in df_f.columns]
 
@@ -49,6 +52,9 @@ RENAME = {
     'phone_1': 'Phone', 'property_street': 'Address',
     'property_city': 'City', 'property_zip': 'ZIP',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?',
+    'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
+    'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
+    'subdivision': 'Subdivision', 'site_city': 'HCPA City', 'site_zip': 'HCPA ZIP',
     'lien_detail': 'Liens', 'survive_amount': 'Survive $',
     'called': 'Called?', 'reached': 'Reached?', 'offer_amount': 'Offer $',
     'outcome': 'Outcome', 'notes': 'Notes',
@@ -74,6 +80,14 @@ if 'Survive $' in display_df.columns:
     col_config['Survive $'] = st.column_config.NumberColumn(format='$%d', width='small')
 if 'Absentee?' in display_df.columns:
     col_config['Absentee?'] = st.column_config.CheckboxColumn(disabled=True)
+for col in ['Mkt Value', 'Assessed']:
+    if col in display_df.columns:
+        col_config[col] = st.column_config.NumberColumn(format='$%,.0f', width='small')
+for col in ['Sq Ft', 'Beds', 'Baths']:
+    if col in display_df.columns:
+        col_config[col] = st.column_config.NumberColumn(format='%.0f', width='small')
+if 'Acres' in display_df.columns:
+    col_config['Acres'] = st.column_config.NumberColumn(format='%.2f', width='small')
 
 edited = st.data_editor(
     display_df,

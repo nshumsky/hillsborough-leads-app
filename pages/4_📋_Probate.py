@@ -44,7 +44,10 @@ DISPLAY = [c for c in [
     'petitioner_city', 'petitioner_state', 'oos',
     'decedent_first_name', 'decedent_last_name',
     'decedent_street', 'decedent_city', 'decedent_zip',
-    'land_use', 'is_absentee', 'phone_1', 'lien_detail', 'survive_amount',
+    'land_use', 'is_absentee',
+    'beds', 'baths', 'heated_sqft', 'acreage',
+    'just_value', 'assessed_value', 'subdivision', 'site_city', 'site_zip',
+    'phone_1', 'lien_detail', 'survive_amount',
     'called', 'reached', 'offer_amount', 'outcome', 'notes',
 ] if c in df_f.columns]
 
@@ -55,7 +58,11 @@ RENAME = {
     'petitioner_city': 'Pet. City', 'petitioner_state': 'Pet. State', 'oos': 'OOS?',
     'decedent_first_name': 'Dec. First', 'decedent_last_name': 'Dec. Last',
     'decedent_street': 'Prop. Address', 'decedent_city': 'City', 'decedent_zip': 'ZIP',
-    'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'phone_1': 'Phone',
+    'land_use': 'Prop Type', 'is_absentee': 'Absentee?',
+    'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
+    'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
+    'subdivision': 'Subdivision', 'site_city': 'HCPA City', 'site_zip': 'HCPA ZIP',
+    'phone_1': 'Phone',
     'lien_detail': 'Liens', 'survive_amount': 'Survive $',
     'called': 'Called?', 'reached': 'Reached?',
     'offer_amount': 'Offer $', 'outcome': 'Outcome', 'notes': 'Notes',
@@ -75,6 +82,14 @@ if 'Offer $' in display_df.columns:
     col_config['Offer $'] = st.column_config.NumberColumn(format='$%d', width='small')
 if 'Absentee?' in display_df.columns:
     col_config['Absentee?'] = st.column_config.CheckboxColumn(disabled=True)
+for col in ['Mkt Value', 'Assessed']:
+    if col in display_df.columns:
+        col_config[col] = st.column_config.NumberColumn(format='$%,.0f', width='small')
+for col in ['Sq Ft', 'Beds', 'Baths']:
+    if col in display_df.columns:
+        col_config[col] = st.column_config.NumberColumn(format='%.0f', width='small')
+if 'Acres' in display_df.columns:
+    col_config['Acres'] = st.column_config.NumberColumn(format='%.2f', width='small')
 
 edited = st.data_editor(
     display_df,

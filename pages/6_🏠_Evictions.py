@@ -38,7 +38,10 @@ DISPLAY = [c for c in [
     'landlord_name',
     'tenant_first_name', 'tenant_last_name',
     'property_street', 'property_city', 'property_state', 'property_zip',
-    'land_use', 'is_absentee', 'phone_1',
+    'land_use', 'is_absentee',
+    'beds', 'baths', 'heated_sqft', 'acreage',
+    'just_value', 'assessed_value', 'subdivision', 'site_city', 'site_zip',
+    'phone_1',
     'called', 'reached', 'outcome', 'notes',
 ] if c in df_f.columns]
 
@@ -48,7 +51,11 @@ RENAME = {
     'tenant_first_name': 'Tenant First', 'tenant_last_name': 'Tenant Last',
     'property_street': 'Address', 'property_city': 'City',
     'property_state': 'State', 'property_zip': 'ZIP',
-    'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'phone_1': 'Phone',
+    'land_use': 'Prop Type', 'is_absentee': 'Absentee?',
+    'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
+    'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
+    'subdivision': 'Subdivision', 'site_city': 'HCPA City', 'site_zip': 'HCPA ZIP',
+    'phone_1': 'Phone',
     'called': 'Called?', 'reached': 'Reached?',
     'outcome': 'Outcome', 'notes': 'Notes',
 }
@@ -61,6 +68,16 @@ for col, opts in [('Called?', ['', 'Yes', 'No', 'Voicemail', 'DNC']),
                    ('Outcome', ['', 'Active', 'Deal', 'Dead', 'Not Interested'])]:
     if col in display_df.columns:
         col_config[col] = st.column_config.SelectboxColumn(options=opts)
+if 'Absentee?' in display_df.columns:
+    col_config['Absentee?'] = st.column_config.CheckboxColumn(disabled=True)
+for col in ['Mkt Value', 'Assessed']:
+    if col in display_df.columns:
+        col_config[col] = st.column_config.NumberColumn(format='$%,.0f', width='small')
+for col in ['Sq Ft', 'Beds', 'Baths']:
+    if col in display_df.columns:
+        col_config[col] = st.column_config.NumberColumn(format='%.0f', width='small')
+if 'Acres' in display_df.columns:
+    col_config['Acres'] = st.column_config.NumberColumn(format='%.2f', width='small')
 
 edited = st.data_editor(display_df, column_config=col_config,
                         use_container_width=True, hide_index=True,
