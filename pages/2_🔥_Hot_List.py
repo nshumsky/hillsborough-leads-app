@@ -156,7 +156,7 @@ if sel_cities and 'city' in df.columns:
 if sel_zips and 'zip' in df.columns:
     df = df[df['zip'].isin(sel_zips)]
 if excl_mobile_apt and 'prop_type' in df.columns:
-    EXCL = {'Mobile Home', 'Multi-Family'}
+    EXCL = {'Mobile Home', 'Multi-Family', 'Condo', 'Commercial'}
     df = df[~df['prop_type'].isin(EXCL)]
 if absentee_only and 'is_absentee' in df.columns:
     df = df[df['is_absentee'] == True]

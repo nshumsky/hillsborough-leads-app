@@ -53,7 +53,7 @@ if 'urgency' in df.columns:
 # Property type exclusion
 excl_mobile_apt = st.sidebar.checkbox('Exclude Mobile Homes & Apartments', value=True)
 if excl_mobile_apt and 'land_use' in df.columns:
-    EXCL = {'Mobile Home', 'Multi-Family'}
+    EXCL = {'Mobile Home', 'Multi-Family', 'Condo', 'Commercial'}
     df = df[~df['land_use'].isin(EXCL)]
 
 # City filter

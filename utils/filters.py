@@ -88,11 +88,13 @@ def prop_type_filter(df: pd.DataFrame) -> pd.DataFrame:
     if exclude:
         # After label conversion the column contains label strings;
         # before conversion it contains 4-digit HCPA codes.
-        EXCLUDE_LABELS  = {'Mobile Home', 'Multi-Family'}
-        EXCLUDE_CODES   = {'0200', '0800'}
+        EXCLUDE_LABELS = {'Mobile Home', 'Multi-Family', 'Condo', 'Commercial'}
+        EXCLUDE_PREFIXES = ('02', '04', '10')  # Mobile Home, Condo, Commercial
+        EXCLUDE_CODES  = {'0800'}              # Multi-Family apartment buildings
         mask = df['land_use'].apply(
-            lambda x: str(x) in EXCLUDE_LABELS or str(x) in EXCLUDE_CODES
-                      or str(x)[:2] == '02'  # catch any 02xx sub-code
+            lambda x: str(x) in EXCLUDE_LABELS
+                      or str(x) in EXCLUDE_CODES
+                      or str(x)[:2] in EXCLUDE_PREFIXES
         )
         df = df[~mask]
     return df
