@@ -254,7 +254,7 @@ def query_annotations(case_number: str | None = None, address: str | None = None
 def upsert_annotation(case_number: str | None, address: str | None,
                       tag: str | None, note: str | None,
                       created_by: str = 'mike') -> dict:
-    """Insert or update an annotation. Returns the upserted row."""
+    """Insert a new annotation row. Returns the inserted row."""
     sb = get_client()
     record = {
         'case_number': case_number or None,
@@ -262,7 +262,7 @@ def upsert_annotation(case_number: str | None, address: str | None,
         'tag':         tag or None,
         'note':        note or None,
         'created_by':  created_by,
-        'updated_at':  'now()',
+        # updated_at is set by DB default — omitting it avoids writing the string "now()"
     }
     res = sb.schema('silver').table('dim_annotations').insert(record).execute()
     query_annotations.clear()

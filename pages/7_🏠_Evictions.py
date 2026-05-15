@@ -91,6 +91,7 @@ if st.button('💾 Save Changes', type='primary'):
                        ('Outcome', 'outcome'), ('Notes', 'notes')]:
             if dc in edited.columns:
                 rec[db] = row.get(dc) or None
+
         records.append(rec)
     try:
         upsert_outcomes_bulk(records)

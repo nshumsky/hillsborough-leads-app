@@ -64,16 +64,14 @@ with tab1:
             'closed_date',
         ] if c in filtered.columns]
 
-        st.dataframe(
-            filtered[show_cols].rename(columns={
-                'opened_date': 'Opened', 'status': 'Status',
-                'violation_type': 'Type', 'address_raw': 'Address',
-                'closed_date': 'Closed',
-            }).sort_values('Opened', ascending=False, na_position='last')
-            if 'Opened' not in filtered.columns else filtered[show_cols],
-            use_container_width=True,
-            hide_index=True,
-        )
+        display_code = filtered[show_cols].rename(columns={
+            'opened_date': 'Opened', 'status': 'Status',
+            'violation_type': 'Type', 'address_raw': 'Address',
+            'closed_date': 'Closed',
+        })
+        if 'Opened' in display_code.columns:
+            display_code = display_code.sort_values('Opened', ascending=False, na_position='last')
+        st.dataframe(display_code, use_container_width=True, hide_index=True)
 
         csv = filtered[show_cols].to_csv(index=False) if show_cols else ''
         if csv:

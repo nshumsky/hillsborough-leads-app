@@ -122,8 +122,8 @@ c1, c2 = st.columns(2)
 with c1:
     download_button(df_f[DISPLAY], 'foreclosures.csv')
 with c2:
-    needs_skip = df_f[df_f.get('phone_1', pd.Series(dtype=str)).isna() |
-                      (df_f.get('phone_1', pd.Series(dtype=str)) == '')]
+    needs_skip = df_f[df_f['phone_1'].isna() | (df_f['phone_1'] == '')] \
+        if 'phone_1' in df_f.columns else df_f
     if not needs_skip.empty:
         st.download_button(
             '📤 Propstream Upload CSV',
