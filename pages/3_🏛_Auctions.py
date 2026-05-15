@@ -50,6 +50,12 @@ if 'urgency' in df.columns:
     if sel_urgency:
         df = df[df['urgency'].isin(sel_urgency)]
 
+# Property type exclusion
+excl_mobile_apt = st.sidebar.checkbox('Exclude Mobile Homes & Apartments', value=True)
+if excl_mobile_apt and 'land_use' in df.columns:
+    EXCL = {'Mobile Home', 'Multi-Family'}
+    df = df[~df['land_use'].isin(EXCL)]
+
 # City filter
 if 'property_city' in df.columns:
     cities = sorted(df['property_city'].dropna().unique().tolist())

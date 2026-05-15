@@ -79,11 +79,31 @@ def has_phone_filter(df: pd.DataFrame, phone_col: str = 'phone_1') -> pd.DataFra
     return df
 
 
+def prop_type_filter(df: pd.DataFrame) -> pd.DataFrame:
+    """Sidebar checkbox: exclude mobile homes and large apartment buildings.
+    Works on both raw HCPA codes (02xx, 0800) and converted labels."""
+    if 'land_use' not in df.columns or df.empty:
+        return df
+    exclude = st.sidebar.checkbox('Exclude Mobile Homes & Apartments', value=True)
+    if exclude:
+        # After label conversion the column contains label strings;
+        # before conversion it contains 4-digit HCPA codes.
+        EXCLUDE_LABELS  = {'Mobile Home', 'Multi-Family'}
+        EXCLUDE_CODES   = {'0200', '0800'}
+        mask = df['land_use'].apply(
+            lambda x: str(x) in EXCLUDE_LABELS or str(x) in EXCLUDE_CODES
+                      or str(x)[:2] == '02'  # catch any 02xx sub-code
+        )
+        df = df[~mask]
+    return df
+
+
 def apply_all_filters(df: pd.DataFrame, date_col: str = 'filing_date',
                        city_col: str | None = None) -> pd.DataFrame:
     """Apply all standard sidebar filters in order."""
     df = date_range_filter(df, date_col)
     df = outcome_filter(df)
+    df = prop_type_filter(df)
     if city_col and city_col in df.columns:
         df = city_filter(df, city_col)
     df = bucket_filter(df)
