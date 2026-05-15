@@ -30,6 +30,22 @@ if 'land_use' in df.columns:
     df['land_use'] = df['land_use'].fillna('').apply(land_use_label)
 
 st.sidebar.header('Filters')
+
+# Private landlords only — filter out LLCs, corporations, property mgmt companies
+_CORP_PATTERN = (
+    r'(llc|l\.l\.c|inc\b|corp\b|corporation|company|\bco\b|properties|'
+    r'management|holdings|realty|investments|ventures|partners|\bgroup\b|'
+    r'fund|trust|association|assoc\b|hoa|apartments?|apts?\b|residential|'
+    r'communities|community|services|solutions|enterprises|development|'
+    r'dev\.|housing|equity|capital|asset)'
+)
+private_only = st.sidebar.checkbox('Private landlords only', value=True)
+if private_only and 'landlord_name' in df.columns:
+    import re
+    df = df[~df['landlord_name'].fillna('').str.lower().str.contains(
+        _CORP_PATTERN, regex=True, na=False
+    )]
+
 df_f = apply_all_filters(df, date_col='filing_date', city_col='property_city')
 st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 

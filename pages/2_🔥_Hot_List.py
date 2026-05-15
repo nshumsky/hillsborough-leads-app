@@ -125,6 +125,16 @@ if 'zip' in all_leads.columns:
 else:
     sel_zips = []
 
+# Evictions: private landlords only
+_CORP_PAT = (
+    r'(llc|l\.l\.c|inc\b|corp\b|corporation|company|\bco\b|properties|'
+    r'management|holdings|realty|investments|ventures|partners|\bgroup\b|'
+    r'fund|trust|association|assoc\b|hoa|apartments?|apts?\b|residential|'
+    r'communities|community|services|solutions|enterprises|development|'
+    r'dev\.|housing|equity|capital|asset)'
+)
+private_only = st.sidebar.checkbox('Evictions: private landlords only', value=True)
+
 # Property type exclusions
 excl_mobile_apt = st.sidebar.checkbox('Exclude Mobile Homes & Apartments', value=True)
 
@@ -155,6 +165,12 @@ if sel_cities and 'city' in df.columns:
     df = df[df['city'].isin(sel_cities)]
 if sel_zips and 'zip' in df.columns:
     df = df[df['zip'].isin(sel_zips)]
+import re
+if private_only and 'lead_type' in df.columns and 'owner_name' in df.columns:
+    eviction_mask = (df['lead_type'] == 'eviction') & \
+                    df['owner_name'].fillna('').str.lower().str.contains(_CORP_PAT, regex=True)
+    df = df[~eviction_mask]
+
 if excl_mobile_apt and 'prop_type' in df.columns:
     EXCL = {'Mobile Home', 'Multi-Family', 'Condo', 'Commercial'}
     df = df[~df['prop_type'].isin(EXCL)]
