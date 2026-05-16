@@ -59,6 +59,16 @@ if all(c in df.columns for c in ['land_use', 'owner_raw', 'decedent_last_name'])
 if 'land_use' in df.columns:
     df['land_use'] = df['land_use'].fillna('').apply(land_use_label)
 
+# ── Possible-match address indicator ─────────────────────────────────────────
+# 'possible' = name-search score 65–84; address shown but needs manual confirmation.
+# 'confirmed' = Mike verified it via HCPA (future manual workflow).
+if 'property_search_status' in df.columns:
+    def _addr_conf(s):
+        if s == 'possible':  return '?'
+        if s == 'confirmed': return '✓'
+        return ''
+    df['addr_conf'] = df['property_search_status'].apply(_addr_conf)
+
 st.sidebar.header('Filters')
 # OOS filter
 if 'oos' in df.columns:
@@ -79,12 +89,31 @@ if 'just_value' in df.columns:
 df_f = apply_all_filters(df, date_col='filing_date', city_col='actual_property_city')
 st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 
+# ── Possible-match banner ─────────────────────────────────────────────────────
+if 'property_search_status' in df_f.columns:
+    possible_cases = df_f[df_f['property_search_status'] == 'possible']
+    if not possible_cases.empty:
+        names = ', '.join(
+            f"{r.get('decedent_first_name','')} {r.get('decedent_last_name','')}".strip()
+            for _, r in possible_cases.head(5).iterrows()
+            if r.get('decedent_last_name')
+        )
+        extra = f' + {len(possible_cases) - 5} more' if len(possible_cases) > 5 else ''
+        st.info(
+            f"**{len(possible_cases)} property address(es) marked '?' need manual confirmation** "
+            f"— name-match score was 65–84 (near-miss). "
+            f"Verify on HCPA before calling: {names}{extra}\n\n"
+            "Once confirmed, the address can be promoted to 'found' by running "
+            "`find_probate_properties.py --case <CASE#>` after verifying the folio.",
+            icon="🔍",
+        )
+
 DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
     'petitioner_first_name', 'petitioner_last_name',
     'petitioner_city', 'petitioner_state', 'oos',
     'decedent_first_name', 'decedent_last_name',
-    'actual_property_addr', 'actual_property_city', 'actual_property_state', 'actual_property_zip',
+    'actual_property_addr', 'addr_conf', 'actual_property_city', 'actual_property_state', 'actual_property_zip',
     'land_use', 'is_absentee', 'homestead',
     'beds', 'baths', 'heated_sqft', 'acreage',
     'just_value', 'assessed_value', 'subdivision',
@@ -98,7 +127,8 @@ RENAME = {
     'petitioner_first_name': 'Pet. First', 'petitioner_last_name': 'Pet. Last',
     'petitioner_city': 'Pet. City', 'petitioner_state': 'Pet. State', 'oos': 'OOS?',
     'decedent_first_name': 'Dec. First', 'decedent_last_name': 'Dec. Last',
-    'actual_property_addr': 'Property Address', 'actual_property_city': 'City',
+    'actual_property_addr': 'Property Address', 'addr_conf': 'Addr?',
+    'actual_property_city': 'City',
     'actual_property_state': 'State', 'actual_property_zip': 'ZIP',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'homestead': 'Homestead?',
     'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
@@ -116,6 +146,12 @@ CALLED_OPTS  = ['', 'Yes', 'No', 'Voicemail', 'DNC']
 REACHED_OPTS = ['', 'Yes', 'No', 'Voicemail']
 
 col_config = {}
+if 'Addr?' in display_df.columns:
+    col_config['Addr?'] = st.column_config.TextColumn(
+        help="'?' = near-miss address, verify before calling. '✓' = manually confirmed.",
+        width='small',
+        disabled=True,
+    )
 for col, opts in [('Called?', CALLED_OPTS), ('Reached?', REACHED_OPTS), ('Outcome', OUTCOME_OPTS)]:
     if col in display_df.columns:
         col_config[col] = st.column_config.SelectboxColumn(options=opts, width='medium')
