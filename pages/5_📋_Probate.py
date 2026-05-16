@@ -66,7 +66,17 @@ if 'oos' in df.columns:
     if oos_only:
         df = df[df['oos'] == True]
 
-df_f = apply_all_filters(df, date_col='filing_date', city_col='decedent_city')
+# High-value filter
+if 'just_value' in df.columns:
+    min_value = st.sidebar.number_input(
+        '💰 Min market value ($)',
+        min_value=0, max_value=10_000_000, value=0, step=100_000,
+        format='%d',
+    )
+    if min_value > 0:
+        df = df[df['just_value'].fillna(0) >= min_value]
+
+df_f = apply_all_filters(df, date_col='filing_date', city_col='actual_property_city')
 st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 
 DISPLAY = [c for c in [
@@ -74,9 +84,7 @@ DISPLAY = [c for c in [
     'petitioner_first_name', 'petitioner_last_name',
     'petitioner_city', 'petitioner_state', 'oos',
     'decedent_first_name', 'decedent_last_name',
-    'decedent_street', 'decedent_city', 'decedent_zip',
-    # actual_property_addr is only populated when the Clerk address is a care facility
-    'actual_property_addr',
+    'actual_property_addr', 'actual_property_city', 'actual_property_zip',
     'land_use', 'is_absentee', 'homestead',
     'beds', 'baths', 'heated_sqft', 'acreage',
     'just_value', 'assessed_value', 'subdivision',
@@ -90,8 +98,8 @@ RENAME = {
     'petitioner_first_name': 'Pet. First', 'petitioner_last_name': 'Pet. Last',
     'petitioner_city': 'Pet. City', 'petitioner_state': 'Pet. State', 'oos': 'OOS?',
     'decedent_first_name': 'Dec. First', 'decedent_last_name': 'Dec. Last',
-    'decedent_street': 'Clerk Address', 'decedent_city': 'City', 'decedent_zip': 'ZIP',
-    'actual_property_addr': '🏠 Actual Property',
+    'actual_property_addr': 'Property Address', 'actual_property_city': 'City',
+    'actual_property_zip': 'ZIP',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'homestead': 'Homestead?',
     'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
     'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
