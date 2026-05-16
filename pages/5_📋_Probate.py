@@ -75,6 +75,8 @@ DISPLAY = [c for c in [
     'petitioner_city', 'petitioner_state', 'oos',
     'decedent_first_name', 'decedent_last_name',
     'decedent_street', 'decedent_city', 'decedent_zip',
+    # actual_property_addr is only populated when the Clerk address is a care facility
+    'actual_property_addr',
     'land_use', 'is_absentee', 'homestead',
     'beds', 'baths', 'heated_sqft', 'acreage',
     'just_value', 'assessed_value', 'subdivision',
@@ -88,7 +90,8 @@ RENAME = {
     'petitioner_first_name': 'Pet. First', 'petitioner_last_name': 'Pet. Last',
     'petitioner_city': 'Pet. City', 'petitioner_state': 'Pet. State', 'oos': 'OOS?',
     'decedent_first_name': 'Dec. First', 'decedent_last_name': 'Dec. Last',
-    'decedent_street': 'Prop. Address', 'decedent_city': 'City', 'decedent_zip': 'ZIP',
+    'decedent_street': 'Clerk Address', 'decedent_city': 'City', 'decedent_zip': 'ZIP',
+    'actual_property_addr': '🏠 Actual Property',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'homestead': 'Homestead?',
     'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
     'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
