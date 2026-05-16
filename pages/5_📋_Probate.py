@@ -66,15 +66,15 @@ if 'oos' in df.columns:
     if oos_only:
         df = df[df['oos'] == True]
 
-# High-value filter
+# Value ceiling filter — exclude commercial/industrial outliers; keep NULLs
 if 'just_value' in df.columns:
-    min_value = st.sidebar.number_input(
-        '💰 Min market value ($)',
-        min_value=0, max_value=10_000_000, value=0, step=100_000,
+    max_value = st.sidebar.number_input(
+        '💰 Max market value ($)',
+        min_value=0, max_value=10_000_000, value=900_000, step=100_000,
         format='%d',
     )
-    if min_value > 0:
-        df = df[df['just_value'].fillna(0) >= min_value]
+    if max_value > 0:
+        df = df[df['just_value'].isna() | (df['just_value'] <= max_value)]
 
 df_f = apply_all_filters(df, date_col='filing_date', city_col='actual_property_city')
 st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
