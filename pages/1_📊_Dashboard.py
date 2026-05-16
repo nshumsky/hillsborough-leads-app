@@ -17,6 +17,43 @@ st.markdown(
 )
 st.caption(f'📊 Dashboard — {date.today().strftime("%A, %B %d %Y")}')
 
+# ── Seasonal reminders ────────────────────────────────────────────────────────
+_today = date.today()
+_tax_sale = date(_today.year, 5, 31)   # last Saturday of May — adjust if needed
+_days_to_sale = (_tax_sale - _today).days
+
+if 0 < _days_to_sale <= 14:
+    st.warning(
+        f'🏛️ **Hillsborough tax certificate sale is in {_days_to_sale} days (May 31).** '
+        f'After the sale, download the delinquent list from '
+        f'[lienhub.com](https://lienhub.com/county/hillsborough/certsale/main) '
+        f'and upload it in **Tax & Code → 🧾 Tax Delinquent**.',
+        icon='⚠️',
+    )
+elif _days_to_sale == 0:
+    st.error(
+        '🏛️ **Today is the Hillsborough tax certificate sale (May 31)!** '
+        'The delinquent list should be available tonight or tomorrow on '
+        '[lienhub.com](https://lienhub.com/county/hillsborough/certsale/main). '
+        'Upload it in **Tax & Code → 🧾 Tax Delinquent** when it's posted.',
+        icon='🚨',
+    )
+elif -30 <= _days_to_sale < 0:
+    from utils.db import query_tax_delinquent
+    try:
+        _tax_loaded = not query_tax_delinquent().empty
+    except Exception:
+        _tax_loaded = False
+    if not _tax_loaded:
+        st.warning(
+            '🏛️ **The Hillsborough tax certificate sale has passed** '
+            f'(was May 31 — {abs(_days_to_sale)} days ago). '
+            'The delinquent list should now be available on '
+            '[lienhub.com](https://lienhub.com/county/hillsborough/certsale/main). '
+            'Upload it in **Tax & Code → 🧾 Tax Delinquent**.',
+            icon='⚠️',
+        )
+
 # ── KPI row ───────────────────────────────────────────────────────────────────
 try:
     kpis = get_kpis()
