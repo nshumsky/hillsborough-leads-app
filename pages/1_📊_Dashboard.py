@@ -40,7 +40,7 @@ def _attention_box(headline: str, body: str, color: str = '#d97706'):
     </div>
     """, unsafe_allow_html=True)
 
-if 0 < _days_to_sale <= 14:
+if 0 < _days_to_sale <= 30:
     _attention_box(
         f'Tax Certificate Sale in {_days_to_sale} Day{"s" if _days_to_sale != 1 else ""} — May 31',
         'The Hillsborough annual delinquent tax sale is coming up. After the sale, '
