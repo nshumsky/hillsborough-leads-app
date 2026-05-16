@@ -40,29 +40,30 @@ def _attention_box(headline: str, body: str, color: str = '#d97706'):
     </div>
     """, unsafe_allow_html=True)
 
-if 0 < _days_to_sale <= 30:
-    _attention_box(
-        f'Tax Certificate Sale in {_days_to_sale} Day{"s" if _days_to_sale != 1 else ""} — May 31',
-        'The Hillsborough annual delinquent tax sale is coming up. After the sale, '
-        'download the certificate list from '
-        '<a href="https://lienhub.com/county/hillsborough/certsale/main" target="_blank">lienhub.com</a> '
-        'and upload it in <b>Tax &amp; Code → 🧾 Tax Delinquent</b> to see which leads have unpaid taxes.',
-    )
-elif _days_to_sale == 0:
-    _attention_box(
-        'Tax Certificate Sale is TODAY — May 31',
-        'The Hillsborough delinquent list will be posted tonight or tomorrow on '
-        '<a href="https://lienhub.com/county/hillsborough/certsale/main" target="_blank">lienhub.com</a>. '
-        'Upload it in <b>Tax &amp; Code → 🧾 Tax Delinquent</b> as soon as it\'s available.',
-        color='#dc2626',
-    )
-elif -30 <= _days_to_sale < 0:
-    from utils.db import query_tax_delinquent
-    try:
-        _tax_loaded = not query_tax_delinquent().empty
-    except Exception:
-        _tax_loaded = False
-    if not _tax_loaded:
+from utils.db import query_tax_delinquent
+try:
+    _tax_loaded = not query_tax_delinquent().empty
+except Exception:
+    _tax_loaded = False
+
+if not _tax_loaded:
+    if _days_to_sale > 0:
+        _attention_box(
+            f'Tax Certificate Sale in {_days_to_sale} Day{"s" if _days_to_sale != 1 else ""} — May 31',
+            'The Hillsborough annual delinquent tax sale is coming up. After the sale, '
+            'download the certificate list from '
+            '<a href="https://lienhub.com/county/hillsborough/certsale/main" target="_blank">lienhub.com</a> '
+            'and upload it in <b>Tax &amp; Code → 🧾 Tax Delinquent</b> to see which leads have unpaid taxes.',
+        )
+    elif _days_to_sale == 0:
+        _attention_box(
+            'Tax Certificate Sale is TODAY — May 31',
+            'The Hillsborough delinquent list will be posted tonight or tomorrow on '
+            '<a href="https://lienhub.com/county/hillsborough/certsale/main" target="_blank">lienhub.com</a>. '
+            'Upload it in <b>Tax &amp; Code → 🧾 Tax Delinquent</b> as soon as it\'s available.',
+            color='#dc2626',
+        )
+    else:
         _attention_box(
             f'Tax Certificate List Not Yet Uploaded — Sale Was {abs(_days_to_sale)} Days Ago',
             'The annual delinquent list should now be available on '
