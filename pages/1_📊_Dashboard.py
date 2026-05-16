@@ -22,21 +22,39 @@ _today = date.today()
 _tax_sale = date(_today.year, 5, 31)   # last Saturday of May — adjust if needed
 _days_to_sale = (_tax_sale - _today).days
 
+def _attention_box(headline: str, body: str, color: str = '#d97706'):
+    st.markdown(f"""
+    <div style="
+        border-left: 6px solid {color};
+        background: {color}18;
+        border-radius: 6px;
+        padding: 14px 18px;
+        margin-bottom: 1rem;
+    ">
+        <div style="font-size: 1.05rem; font-weight: 700; color: {color}; margin-bottom: 4px;">
+            ⚠️ ATTENTION — {headline}
+        </div>
+        <div style="font-size: 0.92rem; color: #1e293b; line-height: 1.5;">
+            {body}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 if 0 < _days_to_sale <= 14:
-    st.warning(
-        f'🏛️ **Hillsborough tax certificate sale is in {_days_to_sale} days (May 31).** '
-        f'After the sale, download the delinquent list from '
-        f'[lienhub.com](https://lienhub.com/county/hillsborough/certsale/main) '
-        f'and upload it in **Tax & Code → 🧾 Tax Delinquent**.',
-        icon='⚠️',
+    _attention_box(
+        f'Tax Certificate Sale in {_days_to_sale} Day{"s" if _days_to_sale != 1 else ""} — May 31',
+        'The Hillsborough annual delinquent tax sale is coming up. After the sale, '
+        'download the certificate list from '
+        '<a href="https://lienhub.com/county/hillsborough/certsale/main" target="_blank">lienhub.com</a> '
+        'and upload it in <b>Tax &amp; Code → 🧾 Tax Delinquent</b> to see which leads have unpaid taxes.',
     )
 elif _days_to_sale == 0:
-    st.error(
-        '🏛️ **Today is the Hillsborough tax certificate sale (May 31)!** '
-        'The delinquent list should be available tonight or tomorrow on '
-        '[lienhub.com](https://lienhub.com/county/hillsborough/certsale/main). '
-        'Upload it in **Tax & Code → 🧾 Tax Delinquent** when it's posted.',
-        icon='🚨',
+    _attention_box(
+        'Tax Certificate Sale is TODAY — May 31',
+        'The Hillsborough delinquent list will be posted tonight or tomorrow on '
+        '<a href="https://lienhub.com/county/hillsborough/certsale/main" target="_blank">lienhub.com</a>. '
+        'Upload it in <b>Tax &amp; Code → 🧾 Tax Delinquent</b> as soon as it\'s available.',
+        color='#dc2626',
     )
 elif -30 <= _days_to_sale < 0:
     from utils.db import query_tax_delinquent
@@ -45,13 +63,11 @@ elif -30 <= _days_to_sale < 0:
     except Exception:
         _tax_loaded = False
     if not _tax_loaded:
-        st.warning(
-            '🏛️ **The Hillsborough tax certificate sale has passed** '
-            f'(was May 31 — {abs(_days_to_sale)} days ago). '
-            'The delinquent list should now be available on '
-            '[lienhub.com](https://lienhub.com/county/hillsborough/certsale/main). '
-            'Upload it in **Tax & Code → 🧾 Tax Delinquent**.',
-            icon='⚠️',
+        _attention_box(
+            f'Tax Certificate List Not Yet Uploaded — Sale Was {abs(_days_to_sale)} Days Ago',
+            'The annual delinquent list should now be available on '
+            '<a href="https://lienhub.com/county/hillsborough/certsale/main" target="_blank">lienhub.com</a>. '
+            'Download it and upload it in <b>Tax &amp; Code → 🧾 Tax Delinquent</b>.',
         )
 
 # ── KPI row ───────────────────────────────────────────────────────────────────
