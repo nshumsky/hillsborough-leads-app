@@ -5,10 +5,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.db import query_leads, upsert_outcomes_bulk
-from utils.scoring import add_pb_bucket, land_use_label
+from utils.scoring import add_pb_bucket, land_use_label, is_likely_care_facility
 from utils.filters import apply_all_filters
 from utils.export import download_button, to_propstream_csv
-from utils.branding import apply_branding
+from utils.branding import apply_branding, NAVY
 
 st.set_page_config(page_title='Probate', page_icon='📋', layout='wide')
 apply_branding()
@@ -25,6 +25,37 @@ if df.empty:
     st.stop()
 
 df = add_pb_bucket(df, 'days_since_filing')
+
+# ── Detect care-facility addresses ───────────────────────────────────────────
+# The Clerk files the decedent's LAST KNOWN MAILING ADDRESS, which is often
+# an assisted living facility, nursing home, or other care facility — NOT the
+# property the estate owns.  Flag those rows so Mike knows to search HCPA by
+# owner name instead of relying on the address-based property lookup.
+if all(c in df.columns for c in ['land_use', 'owner_raw', 'decedent_last_name']):
+    df['_care_flag'] = df.apply(
+        lambda r: is_likely_care_facility(
+            r.get('land_use', ''),
+            r.get('owner_raw', ''),
+            r.get('decedent_last_name', ''),
+        ), axis=1
+    )
+    care_cases = df[df['_care_flag'] == True]
+    if not care_cases.empty:
+        names = ', '.join(
+            f"{r.decedent_first_name} {r.decedent_last_name}"
+            for _, r in care_cases.head(5).iterrows()
+            if r.get('decedent_last_name')
+        )
+        extra = f' + {len(care_cases) - 5} more' if len(care_cases) > 5 else ''
+        st.warning(
+            f"⚠️ **{len(care_cases)} decedent address(es) appear to be care facilities, "
+            f"not the decedent's own property:** {names}{extra}\n\n"
+            "The property data shown (beds, value, etc.) belongs to the facility building — "
+            "not the estate asset. To find what the decedent actually owned, search HCPA by "
+            "their name: [hcpafl.org Property Search](https://www.hcpafl.org/Property-Info/Property-Search)",
+            icon="🏥"
+        )
+
 if 'land_use' in df.columns:
     df['land_use'] = df['land_use'].fillna('').apply(land_use_label)
 
