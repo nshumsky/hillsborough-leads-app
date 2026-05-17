@@ -109,9 +109,6 @@ display_df = df[DISPLAY].rename(columns=RENAME)
 col_config = {}
 if 'Absentee?' in display_df.columns:
     col_config['Absentee?'] = st.column_config.CheckboxColumn(disabled=True)
-if 'Case #' in display_df.columns and 'auction_url' in df.columns:
-    # Build clickable link column from aid
-    pass  # handled below via link_column if available
 for col in ['Judgment $', 'Mkt Value', 'Assessed', 'Survive $', 'Wiped $']:
     if col in display_df.columns:
         col_config[col] = st.column_config.NumberColumn(format='$%,.0f')
@@ -121,14 +118,19 @@ for col in ['Sq Ft', 'Beds', 'Baths']:
 if 'Acres' in display_df.columns:
     col_config['Acres'] = st.column_config.NumberColumn(format='%.2f', width='small')
 if 'Lien URL' in display_df.columns:
-    col_config['Lien URL'] = st.column_config.LinkColumn('Lien URL', display_text='🔗 View')
+    col_config['Lien URL'] = st.column_config.LinkColumn('Lien URL', display_text='🔗 Liens')
 if 'Days' in display_df.columns:
     col_config['Days'] = st.column_config.NumberColumn('Days', format='%d')
 
-# Add auction URL as link column if we have it
+# Insert link columns near the front: HCPA property page first, then auction page
+pos = 1
+if 'hcpa_url' in df.columns:
+    display_df.insert(pos, 'Property', df['hcpa_url'].values)
+    col_config['Property'] = st.column_config.LinkColumn('Property', display_text='🏠 HCPA')
+    pos += 1
 if 'auction_url' in df.columns:
-    display_df.insert(1, 'Auction Link', df['auction_url'].values)
-    col_config['Auction Link'] = st.column_config.LinkColumn('Auction Link', display_text='🏛 View')
+    display_df.insert(pos, 'Auction', df['auction_url'].values)
+    col_config['Auction'] = st.column_config.LinkColumn('Auction', display_text='⚖️ Auction')
 
 st.dataframe(
     display_df,
