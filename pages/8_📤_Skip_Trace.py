@@ -45,13 +45,38 @@ if not needs_skip:
 all_needs = pd.concat(needs_skip, ignore_index=True)
 
 # ── Stats ─────────────────────────────────────────────────────────────────────
-by_type = all_needs.groupby('_lead_type').size().reset_index(name='Count')
-by_type.columns = ['Lead Type', 'Needs Phone']
-c1, c2 = st.columns([1, 2])
-with c1:
-    st.metric('Total Needs Skip Trace', len(all_needs))
-with c2:
-    st.dataframe(by_type, hide_index=True, use_container_width=True)
+counts = all_needs.groupby('_lead_type').size().to_dict()
+
+TYPE_META = {
+    'foreclosure': ('🏚', '#EF5350', 'Foreclosures'),
+    'probate':     ('📋', '#42A5F5', 'Probate'),
+    'divorce':     ('💔', '#AB47BC', 'Divorce'),
+    'eviction':    ('🏠', '#FF7043', 'Evictions'),
+}
+
+def _card(icon, label, value, color):
+    return f"""
+    <div style="
+        background: {color}18;
+        border: 1px solid {color}55;
+        border-top: 4px solid {color};
+        border-radius: 8px;
+        padding: 16px 20px;
+        text-align: center;
+    ">
+        <div style="font-size: 1.6rem;">{icon}</div>
+        <div style="font-size: 2rem; font-weight: 700; color: {color}; line-height: 1.1;">
+            {value:,}
+        </div>
+        <div style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">{label}</div>
+    </div>"""
+
+cols = st.columns(5)
+for col, (lt, (icon, color, label)) in zip(cols, TYPE_META.items()):
+    with col:
+        st.markdown(_card(icon, label, counts.get(lt, 0), color), unsafe_allow_html=True)
+with cols[4]:
+    st.markdown(_card('📊', 'Total', len(all_needs), '#1e3a5f'), unsafe_allow_html=True)
 
 st.divider()
 
