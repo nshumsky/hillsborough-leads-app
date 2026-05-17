@@ -38,7 +38,9 @@ st.caption(f'{len(df_f):,} of {len(df):,} leads shown')
 # ── Display columns ────────────────────────────────────────────────────────────
 DISPLAY = [c for c in [
     'bucket', 'days_since_filing', 'filing_date', 'case_number',
-    'defendant_name', 'phone_1', 'property_street', 'property_city', 'property_state', 'property_zip',
+    'defendant_name', 'phone_1',
+    'property_street', 'property_city', 'property_state', 'property_zip',
+    'auction_date', 'auction_status', 'judgment',
     'land_use', 'is_absentee', 'homestead',
     'beds', 'baths', 'heated_sqft', 'acreage',
     'just_value', 'assessed_value', 'subdivision',
@@ -50,6 +52,8 @@ RENAME = {
     'case_number': 'Case #', 'defendant_name': 'Defendant',
     'phone_1': 'Phone', 'property_street': 'Address',
     'property_city': 'City', 'property_state': 'State', 'property_zip': 'ZIP',
+    'auction_date': 'Auction Date', 'auction_status': 'Auction Status',
+    'judgment': 'Judgment $',
     'land_use': 'Prop Type', 'is_absentee': 'Absentee?', 'homestead': 'Homestead?',
     'beds': 'Beds', 'baths': 'Baths', 'heated_sqft': 'Sq Ft', 'acreage': 'Acres',
     'just_value': 'Mkt Value', 'assessed_value': 'Assessed',
@@ -86,6 +90,10 @@ for col in ['Sq Ft', 'Beds', 'Baths']:
         col_config[col] = st.column_config.NumberColumn(format='%.0f', width='small')
 if 'Acres' in display_df.columns:
     col_config['Acres'] = st.column_config.NumberColumn(format='%.2f', width='small')
+if 'Judgment $' in display_df.columns:
+    col_config['Judgment $'] = st.column_config.NumberColumn(format='$%,.0f', width='small')
+if 'Auction Date' in display_df.columns:
+    col_config['Auction Date'] = st.column_config.DateColumn(width='small')
 
 edited = st.data_editor(
     display_df,
