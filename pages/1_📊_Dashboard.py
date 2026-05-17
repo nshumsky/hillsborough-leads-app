@@ -156,6 +156,36 @@ with cols[1]:
 
 # ── Cross-type matches ────────────────────────────────────────────────────────
 st.divider()
+
+# ── Propstream results trigger ────────────────────────────────────────────────
+st.subheader('📥 Process Propstream Results')
+st.caption('After dropping a new Propstream file in Google Drive, click below to merge contacts and rebuild the workbook — no waiting for a scheduled job.')
+
+try:
+    from utils.github import trigger_process_results, get_last_run
+    _has_token = bool(st.secrets.get('GITHUB_TOKEN', ''))
+
+    _last = get_last_run('process_results.yml') if _has_token else None
+    if _last:
+        _icon = {'success': '✅', 'failure': '❌', 'in_progress': '⏳', 'queued': '⏳'}.get(
+            _last['conclusion'] or _last['status'], '❓'
+        )
+        _label = _last['conclusion'] or _last['status'] or 'unknown'
+        st.caption(f'Last run: {_icon} {_label} — {_last["ago"]} · [view logs]({_last["url"]})')
+
+    _btn_disabled = not _has_token
+    _btn_help = None if _has_token else 'Add GITHUB_TOKEN to Streamlit secrets to enable'
+    if st.button('▶️ Run Now', type='primary', disabled=_btn_disabled, help=_btn_help):
+        with st.spinner('Triggering pipeline…'):
+            ok = trigger_process_results()
+        if ok:
+            st.success('Pipeline triggered! Results will be merged in ~3–5 minutes. Refresh the page to see updated data.')
+        else:
+            st.error('Could not trigger pipeline — check that GITHUB_TOKEN has actions:write scope.')
+except Exception as _e:
+    st.info(f'Pipeline trigger unavailable: {_e}')
+
+st.divider()
 st.subheader('🔁 Cross-Type Matches (same address in multiple lead types)')
 st.caption('Properties appearing on 2+ lead lists simultaneously — highest priority targets. See 👥 Multi-List for full details.')
 try:
