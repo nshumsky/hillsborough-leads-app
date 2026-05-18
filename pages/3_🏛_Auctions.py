@@ -37,14 +37,14 @@ st.sidebar.header('Filters')
 if 'status' in df.columns:
     all_statuses = sorted(df['status'].dropna().unique().tolist())
     # Default: exclude Sold and Cancelled
-    default_statuses = [s for s in all_statuses if s not in ('Sold', 'Cancelled', 'sold', 'cancelled')]
+    default_statuses = [s for s in all_statuses if s not in ('Sold', 'Cancelled', 'sold', 'cancelled', 'Canceled', 'canceled')]
     sel_status = st.sidebar.multiselect('Status', all_statuses, default=default_statuses)
     if sel_status:
         df = df[df['status'].isin(sel_status)]
 
 # Urgency filter
 if 'urgency' in df.columns:
-    urgency_order = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']
+    urgency_order = ['CRITICAL', 'URGENT', 'WATCH', 'MONITOR']
     all_urgencies = [u for u in urgency_order if u in df['urgency'].unique()]
     sel_urgency = st.sidebar.multiselect('Urgency', all_urgencies, default=all_urgencies)
     if sel_urgency:
@@ -63,11 +63,9 @@ if 'property_city' in df.columns:
     if sel_cities:
         df = df[df['property_city'].isin(sel_cities)]
 
-# Sort by urgency then days_to_sale
-urgency_rank = {'CRITICAL': 0, 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3}
-if 'urgency' in df.columns:
-    df['_urgency_rank'] = df['urgency'].map(urgency_rank).fillna(9)
-    df = df.sort_values(['_urgency_rank', 'days_to_sale'])
+# Sort by days_to_sale ascending (soonest sale first)
+if 'days_to_sale' in df.columns:
+    df = df.sort_values('days_to_sale', ascending=True)
 
 st.caption(f'{len(df):,} auctions shown')
 
