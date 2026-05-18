@@ -98,9 +98,9 @@ def _lists(row):
 
 
 # ── Persons tab ───────────────────────────────────────────────────────────────
-tab1, tab2 = st.tabs([
-    f'👤 Persons  ({len(persons_f)})',
+tab2, tab1 = st.tabs([
     f'🏠 Properties  ({len(properties_f)})',
+    f'👤 Persons  ({len(persons_f)})',
 ])
 
 with tab1:
