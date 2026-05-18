@@ -2,7 +2,8 @@
 Multi-List Persons & Properties
 ================================
 Shows people and addresses that appear on 2+ lead type lists simultaneously
-(e.g., the same person is in both foreclosure AND probate).
+(e.g., the same person is in both foreclosure AND probate, or a foreclosed
+property is also absentee-owned).
 These are the highest-priority leads — multiple distress signals on one target.
 """
 import streamlit as st
@@ -20,7 +21,8 @@ apply_branding()
 st.title('👥 Multi-List Leads')
 st.caption(
     'People and properties appearing on **2 or more** lead type lists simultaneously. '
-    'Multiple distress signals = highest motivation to sell.'
+    'Multiple distress signals = highest motivation to sell. '
+    '**Absentee** = owner lives elsewhere (out-of-state or different FL address).'
 )
 
 # ── Load data ─────────────────────────────────────────────────────────────────
@@ -36,7 +38,6 @@ c1, c2, c3, c4 = st.columns(4)
 c1.metric('👤 Multi-List Persons',     len(persons_df))
 c2.metric('🏠 Multi-List Properties',  len(properties_df))
 
-# Count 3+ list hits
 persons_3plus    = len(persons_df[persons_df['list_count'] >= 3])    if not persons_df.empty    else 0
 properties_3plus = len(properties_df[properties_df['list_count'] >= 3]) if not properties_df.empty else 0
 c3.metric('🔥 Persons on 3+ Lists',    persons_3plus)
@@ -47,11 +48,11 @@ st.divider()
 # ── Sidebar filters ───────────────────────────────────────────────────────────
 st.sidebar.header('Filters')
 
-list_count_min = st.sidebar.slider('Minimum # of lists', min_value=2, max_value=4, value=2)
+list_count_min = st.sidebar.slider('Minimum # of lists', min_value=2, max_value=5, value=2)
 
 list_types = st.sidebar.multiselect(
     'Must appear on…',
-    options=['foreclosure', 'probate', 'divorce', 'eviction'],
+    options=['foreclosure', 'probate', 'divorce', 'eviction', 'absentee'],
     default=[],
     help='Leave blank to show all multi-list leads',
 )
@@ -75,12 +76,21 @@ def _filter_df(df: pd.DataFrame, city_col: str) -> pd.DataFrame:
 persons_f    = _filter_df(persons_df,    city_col='city')
 properties_f = _filter_df(properties_df, city_col='city')
 
-# Drop junk rows where street/city is "Unknown" — these are cases with no
-# usable address that got grouped together in the view
+# Drop junk rows where street/city is "Unknown" — cases with no usable address
 if not properties_f.empty and 'street' in properties_f.columns:
     properties_f = properties_f[
         ~properties_f['street'].fillna('').str.lower().isin(['unknown', '', 'nan'])
     ]
+
+
+# Shared _lists builder — includes absentee
+ALL_TYPES = ['foreclosure', 'probate', 'divorce', 'eviction', 'absentee']
+
+def _lists(row):
+    return ' + '.join([
+        lt.title() for lt in ALL_TYPES
+        if row.get(f'in_{lt}')
+    ])
 
 
 # ── Persons tab ───────────────────────────────────────────────────────────────
@@ -93,13 +103,6 @@ with tab1:
     if persons_f.empty:
         st.info('No multi-list persons match the current filters.')
     else:
-        # Build a readable "Lists" column
-        def _lists(row):
-            return ' + '.join([
-                lt.title() for lt in ['foreclosure', 'probate', 'divorce', 'eviction']
-                if row.get(f'in_{lt}')
-            ])
-
         persons_f = persons_f.copy()
         persons_f['Lists'] = persons_f.apply(_lists, axis=1)
 
@@ -132,7 +135,6 @@ with tab1:
         st.dataframe(display_p, use_container_width=True, hide_index=True)
         download_button(display_p, 'multi_list_persons.csv', '⬇ Download Person List')
 
-        # ── Expand: show all case numbers for selected person ─────────────────
         with st.expander('🔍 View case numbers for a specific person'):
             names = persons_f['full_name'].dropna().sort_values().unique().tolist()
             chosen = st.selectbox('Select person', options=[''] + names, key='person_sel')
@@ -151,12 +153,6 @@ with tab2:
         st.info('No multi-list properties match the current filters.')
     else:
         properties_f = properties_f.copy()
-
-        def _lists(row):
-            return ' + '.join([
-                lt.title() for lt in ['foreclosure', 'probate', 'divorce', 'eviction']
-                if row.get(f'in_{lt}')
-            ])
         properties_f['Lists'] = properties_f.apply(_lists, axis=1)
 
         PRCOLS = [c for c in [
@@ -190,9 +186,10 @@ with tab2:
         }
 
         col_config = {}
-        if 'Assessed $' in properties_f.rename(columns=PRRENAME).columns:
+        renamed_cols = properties_f.rename(columns=PRRENAME).columns
+        if 'Assessed $' in renamed_cols:
             col_config['Assessed $'] = st.column_config.NumberColumn(format='$%,.0f')
-        if 'Surviving $' in properties_f.rename(columns=PRRENAME).columns:
+        if 'Surviving $' in renamed_cols:
             col_config['Surviving $'] = st.column_config.NumberColumn(format='$%,.0f')
 
         display_pr = properties_f[PRCOLS].rename(columns=PRRENAME).sort_values(
@@ -207,7 +204,6 @@ with tab2:
         )
         download_button(display_pr, 'multi_list_properties.csv', '⬇ Download Property List')
 
-        # ── Expand: lien detail for a property ────────────────────────────────
         with st.expander('🔍 View case numbers for a specific address'):
             addrs = properties_f['street'].dropna().sort_values().unique().tolist()
             chosen = st.selectbox('Select address', options=[''] + addrs, key='prop_sel')
