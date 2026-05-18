@@ -363,3 +363,20 @@ def get_kpis() -> dict:
     kpis['new_this_week'] = res.count or 0
     kpis['latest_filing_date'] = latest_str
     return kpis
+
+
+@st.cache_data(ttl=300)
+def query_absentee_leads() -> pd.DataFrame:
+    """Fetch absentee owner leads from gold.fact_absentee_leads."""
+    sb = get_client()
+    res = sb.schema('gold').table('fact_absentee_leads').select('*').execute()
+    if not res.data:
+        return pd.DataFrame()
+    df = pd.DataFrame(res.data)
+    for col in ['assessed_value', 'just_value', 'beds', 'baths',
+                'heated_sqft', 'survive_amount', 'wiped_amount']:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+    if 'filing_date' in df.columns:
+        df['filing_date'] = pd.to_datetime(df['filing_date'], errors='coerce').dt.date
+    return df
