@@ -47,6 +47,10 @@ st.divider()
 
 # ── Sidebar filters ───────────────────────────────────────────────────────────
 st.sidebar.header('Filters')
+if st.sidebar.button('🔄 Refresh data'):
+    st.cache_data.clear()
+    st.rerun()
+
 
 list_count_min = st.sidebar.slider('Minimum # of lists', min_value=2, max_value=5, value=2)
 
